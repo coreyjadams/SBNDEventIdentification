@@ -1,0 +1,47 @@
+ProcessDriver: {
+  Verbosity:       2
+  EnableFilter:    true
+  RandomAccess:    0
+  RandomSeed:      0
+  ProcessType:     ["QSumFilter","EventPIDLabel","CropNeutrino2D"]
+  ProcessName:     ["QSumFilter","EventPIDLabel","CropNeutrino2D"]
+#  StartEntry:      0
+#  NumEntries:      5
+
+  IOManager: {
+    Verbosity:   2
+    Name:        "IOManager"
+    IOMode:      2
+    OutFileName: "out2D.root"
+    InputFiles:  []
+    InputDirs:   []
+    StoreOnlyType: ["image2d","particle"]
+    StoreOnlyName: ["sbndwire","pid"]
+  }
+
+  ProcessList: {
+    QSumFilter: {
+      ImageProducer: "sbndwire"
+      MinQSum:       [100, 100, 100]
+      MinPixel:      [20 , 20 , 20 ]
+      MinADC:        [20 , 20 , 20 ]
+    }
+    EventPIDLabel: {
+      OutputProducer:       "pid"
+      ParticleProducer:     "sbndseg"
+      NeutrinoProducer:     "sbndneutrino"
+      ProtonThreshold:      0.020
+      ChargedPionThreshold: 0.010
+      NeutralPionThreshold: 0.000
+    }
+    CropNeutrino2D: {
+      VertexProducer: "sbndneutrino"
+      ImageProducer:  "sbndwire"
+      OutputProducer: "sbndwire"
+      OutputRows:     512
+      OutputCols:     512
+      RandomShiftRow: 10
+      RandomShiftCol: 10
+    }
+  }
+}

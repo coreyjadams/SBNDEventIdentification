@@ -1,0 +1,50 @@
+ProcessDriver: {
+  Verbosity:       2
+  EnableFilter:    true
+  RandomAccess:    0
+  RandomSeed:      0
+  ProcessType:     ["QSumFilter","EventPIDLabel","Tensor3DFromCluster3D","CropNeutrino3D"]
+  ProcessName:     ["QSumFilter","EventPIDLabel","Tensor3DFromCluster3D","CropNeutrino3D"]
+#  StartEntry:      0
+#  NumEntries:      5
+
+  IOManager: {
+    Verbosity:   2
+    Name:        "IOManager"
+    IOMode:      2
+    OutFileName: "out3D.root"
+    InputFiles:  []
+    InputDirs:   []
+    StoreOnlyType: ["particle","sparse3d"]
+    StoreOnlyName: ["pid","sbndvoxels"]
+  }
+
+  ProcessList: {
+    QSumFilter: {
+      ImageProducer: "sbndwire"
+      MinQSum:       [100, 100, 100]
+      MinPixel:      [20 , 20 , 20 ]
+      MinADC:        [20 , 20 , 20 ]
+    }
+    EventPIDLabel: {
+      OutputProducer:       "pid"
+      ParticleProducer:     "sbndseg"
+      NeutrinoProducer:     "sbndneutrino"
+      ProtonThreshold:      0.020
+      ChargedPionThreshold: 0.010
+      NeutralPionThreshold: 0.000
+    }
+    Tensor3DFromCluster3D: {
+      Cluster3DProducer:   "sbndseg"
+      OutputProducer:      "sbndvoxels"
+    }
+    CropNeutrino3D: {
+      VertexProducer: "sbndneutrino"
+      Sparse3DProducer: "sbndvoxels"
+      OutputProducer: "sbndvoxels"
+      OutputNX: 512
+      OutputNY: 512
+      OutputNZ: 512
+    }
+  }
+}

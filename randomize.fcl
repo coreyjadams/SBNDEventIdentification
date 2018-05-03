@@ -1,0 +1,24 @@
+ProcessDriver: {
+
+  Verbosity:    2
+  EnableFilter: false
+  RandomAccess: true
+  ProcessType:  []
+  ProcessName:  []
+  AnaFile:     ""
+
+  IOManager: {
+    Verbosity:   2
+    Name:        "IOManager"
+    IOMode:      2
+    OutFileName: "out3d_merged_random.root"
+    InputFiles:  []
+    InputDirs:   []
+    StoreOnlyType: []
+    StoreOnlyName: []
+  }
+
+  ProcessList: {
+  }
+}
+
