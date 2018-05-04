@@ -246,7 +246,7 @@ class resnet(object):
         for p in range(len(x)):
             x[p] = tf.layers.conv2d(x[p], self._params['N_INITIAL_FILTERS'],
                                     kernel_size=[7, 7],
-                                    strides=[1, 1],
+                                    strides=[2, 2],
                                     padding='same',
                                     use_bias=False,
                                     trainable=self._params['TRAINING'],
