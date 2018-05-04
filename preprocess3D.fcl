@@ -1,7 +1,7 @@
 ProcessDriver: {
   Verbosity:       2
   EnableFilter:    true
-  RandomAccess:    0
+  RandomAccess:    true
   RandomSeed:      0
   ProcessType:     ["QSumFilter","EventPIDLabel","Tensor3DFromCluster3D","CropNeutrino3D"]
   ProcessName:     ["QSumFilter","EventPIDLabel","Tensor3DFromCluster3D","CropNeutrino3D"]
