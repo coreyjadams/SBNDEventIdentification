@@ -1,0 +1,35 @@
+# network parameters
+NUM_LABELS: 36
+N_INITIAL_FILTERS:  5
+NETWORK_DEPTH_PRE_MERGE:  2
+NETWORK_DEPTH_POST_MERGE:  2
+RESIDUAL_BLOCKS_PER_LAYER: 1
+NPLANES: 3
+
+# training parameters:
+N_MINIBATCH: 2
+MINIBATCH_SIZE: 3
+SAVE_ITERATION: 500
+REPORT_ITERATION: 1
+SUMMARY_ITERATION: 1
+BASE_LEARNING_RATE:  0.001
+TRAINING: True
+ITERATIONS: 50
+TRAIN_CONFIG:
+    FILE: './config_2d/train_io.cfg'
+    FILLER: 'TrainIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'main_data'
+    KEYWORD_LABEL: 'main_label'
+
+# TEST_CONFIG:
+#     FILE: './config_threeplane/test_io.cfg'
+#     FILLER: 'TestIO'
+#     VERBOSITY: 3
+#     KEYWORD_DATA:  'test_data'
+#     KEYWORD_LABEL: 'test_label'
+
+# General parameters:
+LOGDIR: 'log_resnet_2d/'
+RESTORE: False
+GPU: 0
