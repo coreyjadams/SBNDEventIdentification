@@ -3,7 +3,7 @@ NUM_LABELS: 36
 N_INITIAL_FILTERS:  6
 NETWORK_DEPTH_PRE_MERGE:  3
 NETWORK_DEPTH_POST_MERGE:  2
-RESIDUAL_BLOCKS_PER_LAYER: 5
+RESIDUAL_BLOCKS_PER_LAYER: 3
 NPLANES: 3
 
 # training parameters:
@@ -38,6 +38,6 @@ TEST_CONFIG:
       - 'test_ntrpion_label'
 
 # General parameters:
-LOGDIR: 'log_resnet_2d/bigger/'
+LOGDIR: 'log_resnet_2d/smaller/'
 RESTORE: False
 GPU: 0
