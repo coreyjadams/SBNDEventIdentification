@@ -15,8 +15,8 @@ ProcessDriver: {
     OutFileName: "out3D.root"
     InputFiles:  []
     InputDirs:   []
-    StoreOnlyType: ["particle","sparse3d"]
-    StoreOnlyName: ["pid","sbndvoxels"]
+    StoreOnlyType: ["sparse3d","particle","particle","particle","particle","particle"]
+    StoreOnlyName: ["sbndvoxels","neutID","protID","cpiID","npiID","sbndneutrino"]
   }
 
   ProcessList: {

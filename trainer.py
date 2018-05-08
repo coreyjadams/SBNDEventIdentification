@@ -12,7 +12,8 @@ from larcv.dataloader2 import larcv_threadio
 
 import tensorflow as tf
 
-from resnet import resnet
+import resnet
+import resnet3d
 
 class resnet_trainer(object):
 
@@ -35,7 +36,6 @@ class resnet_trainer(object):
 
     def _report(self,metrics,descr):
         msg = ''
-        print descr
         for i,desc in enumerate(descr):
           if not desc: continue
           msg += '%s=%6.6f   ' % (desc,metrics[i])
@@ -110,8 +110,21 @@ class resnet_trainer(object):
         # Net construction:
         start = time.time()
         sys.stdout.write("Begin constructing network\n")
-        self._net = resnet(self._config)
-        self._net.construct_network(dims=dim_data)
+        if len(dim_data) == 4:
+            self._net = resnet.resnet(self._config)
+        elif len(dim_data) == 5:
+            self._net = resnet3d.resnet(self._config)
+        else:
+            print "Can't determine if 2D or 3D network."
+            raise Exception("Network shape exception")
+
+        label_dims = dict()
+        for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
+            label_dims.update(
+                {keyword_label : self._dataloaders['train'].fetch_data(keyword_label).dim()}
+                )
+
+        self._net.construct_network(dims=dim_data, label_dims=label_dims)
         end = time.time()
         sys.stdout.write("Done constructing network. ({0:.2}s)\n".format(end-start))
         #
@@ -160,12 +173,13 @@ class resnet_trainer(object):
                 self._dataloaders['train'].fetch_data(
                     self._config['TRAIN_CONFIG']['KEYWORD_DATA']).dim()
                 )
-            minibatch_label  = self._dataloaders['train'].fetch_data(
-                self._config['TRAIN_CONFIG']['KEYWORD_LABEL']).data()
-            minibatch_label = numpy.reshape(
-                minibatch_label, self._dataloaders['train'].fetch_data(
-                    self._config['TRAIN_CONFIG']['KEYWORD_LABEL']).dim()
-                )
+            label_dict = dict()
+            for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
+
+                minibatch_label  = self._dataloaders['train'].fetch_data(keyword_label).data()
+                minibatch_label = numpy.reshape(minibatch_label,
+                    self._dataloaders['train'].fetch_data(keyword_label).dim())
+                label_dict.update({keyword_label : minibatch_label})
 
             io_end = time.time()
             time_io += io_end - io_start
@@ -173,7 +187,7 @@ class resnet_trainer(object):
             gpu_start = time.time()
             res,doc = self._net.accum_gradients(sess         = self._sess,
                                                 input_data   = minibatch_data,
-                                                input_label  = minibatch_label)
+                                                input_label  = label_dict)
             gpu_end  = time.time()
             time_gpu = gpu_end - gpu_start
 
@@ -203,17 +217,19 @@ class resnet_trainer(object):
             test_data   = self._dataloaders['test'].fetch_data(
                 self._config['TEST_CONFIG']['KEYWORD_DATA']).data()
 
-            test_label  = self._dataloaders['test'].fetch_data(
-                self._config['TEST_CONFIG']['KEYWORD_LABEL']).data()
+
             # Reshape:
             test_data = numpy.reshape(test_data,
                 self._dataloaders['test'].fetch_data(
                     self._config['TEST_CONFIG']['KEYWORD_DATA']).dim()
                 )
-            test_label = numpy.reshape(test_label,
-                self._dataloaders['test'].fetch_data(
-                    self._config['TEST_CONFIG']['KEYWORD_LABEL']).dim()
-                )
+            test_label = dict()
+            for keyword_label in self._config['TEST_CONFIG']['KEYWORD_LABEL']:
+
+                testbatch_label  = self._dataloaders['train'].fetch_data(keyword_label).data()
+                testbatch_label = numpy.reshape(testbatch_label,
+                    self._dataloaders['train'].fetch_data(keyword_label).dim())
+                test_label.update({keyword_label : testbatch_label})
 
         # Report
         if report_step:
@@ -231,7 +247,7 @@ class resnet_trainer(object):
             # Run summary
             self._writer.add_summary(self._net.make_summary(self._sess,
                                                             minibatch_data,
-                                                            minibatch_label),
+                                                            label_dict),
                                      self._iteration)
             if 'TEST_CONFIG' in self._config:
                 self._writer_test.add_summary(self._net.make_summary(self._sess, test_data, test_label),

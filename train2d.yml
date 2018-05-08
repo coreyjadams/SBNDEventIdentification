@@ -20,14 +20,22 @@ TRAIN_CONFIG:
     FILLER: 'TrainIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'main_data'
-    KEYWORD_LABEL: 'main_label'
+    KEYWORD_LABEL:
+      - 'main_neutrino_label'
+      - 'main_proton_label'
+      - 'main_chrpion_label'
+      - 'main_ntrpion_label'
 
-# TEST_CONFIG:
-#     FILE: './config_threeplane/test_io.cfg'
-#     FILLER: 'TestIO'
-#     VERBOSITY: 3
-#     KEYWORD_DATA:  'test_data'
-#     KEYWORD_LABEL: 'test_label'
+TEST_CONFIG:
+    FILE: './config_threeplane/test_io.cfg'
+    FILLER: 'TestIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'test_data'
+    KEYWORD_LABEL:
+      - 'test_neutrino_label'
+      - 'test_proton_label'
+      - 'test_chrpion_label'
+      - 'test_ntrpion_label'
 
 # General parameters:
 LOGDIR: 'log_resnet_2d/'
