@@ -65,10 +65,9 @@ class resnetcore(object):
         self._input_labels = dict()
 
         for label_name in label_dims.keys():
-            label_core = label_name.split('_')[1]
             y = tf.placeholder(tf.int64,
                                label_dims[label_name],
-                               name="label_{0}".format(label_core))
+                               name="label_{0}".format(label_name))
             self._input_labels.update({label_name : y })
 
 
@@ -115,8 +114,7 @@ class resnetcore(object):
 
 
                 # Add the accuracies to the summary:
-                label_core = label_name.split('_')[1]
-                tf.summary.scalar("{0}_Accuracy".format(label_core), self._accuracy[label_name])
+                tf.summary.scalar("{0}_Accuracy".format(label_name), self._accuracy[label_name])
 
         sys.stdout.write(" - Finished accuracy [{0:.2}s]\n".format(time.time() - start))
         start = time.time()
@@ -129,12 +127,12 @@ class resnetcore(object):
                     tf.nn.softmax_cross_entropy_with_logits(labels=self._input_labels[label_name],
                                                             logits=logits[label_name]))
 
+                tf.summary.scalar("{0}_Loss".format(label_name), _loss)
+
                 if 'boost_losses' in self._params:
                     if label_name in self._params['boost_losses']:
                         _loss *= self._params['boost_losses'][label_name]
 
-                label_core = label_name.split('_')[1]
-                tf.summary.scalar("{0}_Loss".format(label_core), _loss)
                 self._losses.update({label_name : _loss})
 
             self._loss = sum(self._losses.itervalues())
@@ -225,8 +223,7 @@ class resnetcore(object):
 
         for label_name in self._accuracy.keys():
             ops += [self._accuracy[label_name]]
-            label_core = label_name.split('_')[1]
-            doc += ["acc. {0}".format(label_core)]
+            doc += ["acc. {0}".format(label_name)]
 
         return sess.run(ops, feed_dict = feed_dict ), doc
 
@@ -239,8 +236,7 @@ class resnetcore(object):
         doc = ['loss']
         for label_name in self._accuracy.keys():
             ops += [self._accuracy[label_name]]
-            label_core = label_name.split('_')[1]
-            doc += ["acc. {0}".format(label_core)]
+            doc += ["acc. {0}".format(label_name)]
 
         return sess.run(ops, feed_dict = feed_dict ), doc
 
