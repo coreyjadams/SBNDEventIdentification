@@ -13,7 +13,7 @@ from larcv.dataloader2 import larcv_threadio
 import tensorflow as tf
 
 import resnet
-import resnet3d
+#import resnet3d
 
 class resnet_trainer(object):
 
@@ -120,8 +120,9 @@ class resnet_trainer(object):
 
         label_dims = dict()
         for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
+            label_core = keyword_label.split("_")[1]
             label_dims.update(
-                {keyword_label : self._dataloaders['train'].fetch_data(keyword_label).dim()}
+                {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
                 )
 
         self._net.construct_network(dims=dim_data, label_dims=label_dims)
@@ -175,11 +176,11 @@ class resnet_trainer(object):
                 )
             label_dict = dict()
             for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
-
+                label_core = keyword_label.split("_")[1]
                 minibatch_label  = self._dataloaders['train'].fetch_data(keyword_label).data()
                 minibatch_label = numpy.reshape(minibatch_label,
                     self._dataloaders['train'].fetch_data(keyword_label).dim())
-                label_dict.update({keyword_label : minibatch_label})
+                label_dict.update({label_core : minibatch_label})
 
             io_end = time.time()
             time_io += io_end - io_start
@@ -225,11 +226,11 @@ class resnet_trainer(object):
                 )
             test_label = dict()
             for keyword_label in self._config['TEST_CONFIG']['KEYWORD_LABEL']:
-
-                testbatch_label  = self._dataloaders['train'].fetch_data(keyword_label).data()
+                label_core = keyword_label.split("_")[1]
+                testbatch_label  = self._dataloaders['test'].fetch_data(keyword_label).data()
                 testbatch_label = numpy.reshape(testbatch_label,
-                    self._dataloaders['train'].fetch_data(keyword_label).dim())
-                test_label.update({keyword_label : testbatch_label})
+                    self._dataloaders['test'].fetch_data(keyword_label).dim())
+                test_label.update({label_core : testbatch_label})
 
         # Report
         if report_step:
