@@ -129,6 +129,10 @@ class resnetcore(object):
                     tf.nn.softmax_cross_entropy_with_logits(labels=self._input_labels[label_name],
                                                             logits=logits[label_name]))
 
+                if 'boost_losses' in self._params:
+                    if label_name in self._params['boost_losses']:
+                        _loss *= self._params['boost_losses'][label_name]
+
                 label_core = label_name.split('_')[1]
                 tf.summary.scalar("{0}_Loss".format(label_core), _loss)
                 self._losses.update({label_name : _loss})
