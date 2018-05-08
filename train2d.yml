@@ -20,7 +20,11 @@ TRAIN_CONFIG:
     FILLER: 'TrainIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'main_data'
-    KEYWORD_LABEL: 'main_label'
+    KEYWORD_LABEL:
+      - 'main_neutrino_label'
+      - 'main_proton_label'
+      - 'main_chrpion_label'
+      - 'main_ntrpion_label'
 
 # TEST_CONFIG:
 #     FILE: './config_threeplane/test_io.cfg'
