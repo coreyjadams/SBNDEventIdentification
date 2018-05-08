@@ -1,5 +1,7 @@
 nohup.out
 log*.out
+log_resnet_2d/
+log_resnet_3d/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
