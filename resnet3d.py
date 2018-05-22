@@ -90,12 +90,12 @@ class resnet3d(resnetcore):
                                    batch_norm=True,
                                    name="resblock_down{0}_{1}".format(i, j))
 
-                x = downsample_block(x, self._params['TRAINING'],
-                                        batch_norm=True,
-                                        name="downsample{0}".format(i))
-                if verbose:
-                    print "Layer {i}: x.get_shape(): {s}".format(
-                        i=i, s=x.get_shape())
+            x = downsample_block(x, self._params['TRAINING'],
+                                    batch_norm=True,
+                                    name="downsample{0}".format(i))
+            if verbose:
+                print "Layer {i}: x.get_shape(): {s}".format(
+                    i=i, s=x.get_shape())
 
 
         final_convolutional_layer = x
