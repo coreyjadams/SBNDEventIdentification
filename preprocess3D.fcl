@@ -3,8 +3,8 @@ ProcessDriver: {
   EnableFilter:    true
   RandomAccess:    true
   RandomSeed:      0
-  ProcessType:     ["Tensor3DFromCluster3D","EmptyTensorFilter","EventPIDLabel","CropNeutrino3D"]
-  ProcessName:     ["Tensor3DFromCluster3D","EmptyTensorFilter","EventPIDLabel","CropNeutrino3D"]
+  ProcessType:     ["Tensor3DFromCluster3D","CropNeutrino3D","EventPIDLabel","EmptyTensorFilter"]
+  ProcessName:     ["Tensor3DFromCluster3D","CropNeutrino3D","EventPIDLabel","EmptyTensorFilter"]
 #  StartEntry:      0
 #  NumEntries:      5
 
