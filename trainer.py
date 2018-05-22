@@ -13,7 +13,7 @@ from larcv.dataloader2 import larcv_threadio
 import tensorflow as tf
 
 import resnet
-#import resnet3d
+import resnet3d
 
 class resnet_trainer(object):
 
@@ -113,7 +113,7 @@ class resnet_trainer(object):
         if len(dim_data) == 4:
             self._net = resnet.resnet(self._config)
         elif len(dim_data) == 5:
-            self._net = resnet3d.resnet(self._config)
+            self._net = resnet3d.resnet3d(self._config)
         else:
             print "Can't determine if 2D or 3D network."
             raise Exception("Network shape exception")

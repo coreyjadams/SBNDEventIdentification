@@ -28,26 +28,26 @@ class resnetcore(object):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
-        required_params =[
-            'MINIBATCH_SIZE',
-            'SAVE_ITERATION',
-            'NUM_LABELS',
-            'N_INITIAL_FILTERS',
-            'NETWORK_DEPTH_PRE_MERGE',
-            'NETWORK_DEPTH_POST_MERGE',
-            'RESIDUAL_BLOCKS_PER_LAYER',
-            'LOGDIR',
-            'BASE_LEARNING_RATE',
-            'TRAINING',
-            'RESTORE',
-            'ITERATIONS',
-        ]
+        # required_params =[
+        #     'MINIBATCH_SIZE',
+        #     'SAVE_ITERATION',
+        #     'NUM_LABELS',
+        #     'N_INITIAL_FILTERS',
+        #     'NETWORK_DEPTH_PRE_MERGE',
+        #     'NETWORK_DEPTH_POST_MERGE',
+        #     'RESIDUAL_BLOCKS_PER_LAYER',
+        #     'LOGDIR',
+        #     'BASE_LEARNING_RATE',
+        #     'TRAINING',
+        #     'RESTORE',
+        #     'ITERATIONS',
+        # ]
 
-        for param in required_params:
-            if param not in params:
-                raise ConfigurationException("Missing paragmeter "+ str(param))
+        # for param in required_params:
+        #     if param not in params:
+        #         raise ConfigurationException("Missing paragmeter "+ str(param))
 
-        self._params = params
+        # self._params = params
 
     def construct_network(self, dims, label_dims):
         '''Build the network model

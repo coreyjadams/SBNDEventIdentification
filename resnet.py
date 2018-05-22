@@ -129,7 +129,7 @@ class resnet(resnetcore):
             num_labels = label_dims[label_name][-1]
             this_x = tf.layers.conv2d(this_x,
                              num_labels,
-                             kernel_size=[7,7],
+                             kernel_size=[1,1],
                              strides=[1, 1],
                              padding='same',
                              activation=None,

@@ -5,6 +5,7 @@ import time
 import tensorflow as tf
 
 from utils3d import residual_block, downsample_block, upsample_block
+from resnetcore import resnetcore
 
 # Declaring exception names:
 class ConfigurationException(Exception): pass
@@ -29,10 +30,28 @@ class resnet3d(resnetcore):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
+        required_params =[
+            'MINIBATCH_SIZE',
+            'SAVE_ITERATION',
+            'NUM_LABELS',
+            'N_INITIAL_FILTERS',
+            'NETWORK_DEPTH',
+            'RESIDUAL_BLOCKS_PER_LAYER',
+            'LOGDIR',
+            'BASE_LEARNING_RATE',
+            'TRAINING',
+            'RESTORE',
+            'ITERATIONS',
+        ]
 
-        super(resnet, self).__init__(params)
+        for param in required_params:
+            if param not in params:
+                raise ConfigurationException("Missing paragmeter "+ str(param))
 
-    def _build_network(self, input_placeholder):
+        self._params = params
+        super(resnet3d, self).__init__(params)
+
+    def _build_network(self, input_placeholder, label_dims):
 
         x = input_placeholder
 
@@ -79,6 +98,7 @@ class resnet3d(resnetcore):
                         i=i, s=x.get_shape())
 
 
+        final_convolutional_layer = x
 
         # Here, split into different classifiers for each final classifier:
         logits = dict()
@@ -89,10 +109,10 @@ class resnet3d(resnetcore):
 
             # Apply a bottle neck to get the right shape:
             num_labels = label_dims[label_name][-1]
-            this_x = tf.layers.conv2d(this_x,
+            this_x = tf.layers.conv3d(this_x,
                              num_labels,
-                             kernel_size=[7,7],
-                             strides=[1, 1],
+                             kernel_size=[1,1,1],
+                             strides=[1,1,1],
                              padding='same',
                              activation=None,
                              use_bias=False,
@@ -103,7 +123,7 @@ class resnet3d(resnetcore):
                 print "Shape after {0} bottleneck: ".format(label_name) + str(this_x.get_shape())
 
             # Apply global average pooling to get the right final shape:
-            shape = (this_x.shape[1], this_x.shape[2])
+            shape = (this_x.shape[1], this_x.shape[2], this_x.shape[3])
             this_x = tf.nn.pool(this_x,
                        window_shape=shape,
                        pooling_type="AVG",
@@ -131,39 +151,3 @@ class resnet3d(resnetcore):
 
         return logits
 
-
-        x = tf.layers.conv3d(x,
-                             self._params['NUM_LABELS'],
-                             kernel_size=[7,7,7],
-                             strides=[1,1,1],
-                             padding='same',
-                             activation=None,
-                             use_bias=False,
-                             trainable=self._params['TRAINING'],
-                             name="BottleneckConv2D")
-        if verbose:
-            print "Shape after bottleneck: " + str(x.get_shape())
-
-        # And lastly, apply global average pooling to get to the correct final shape
-        # For global average pooling, need to get the shape of the input:
-        shape = (x.shape[1], x.shape[2], x.shape[3])
-
-        x = tf.nn.pool(x,
-                       window_shape=shape,
-                       pooling_type="AVG",
-                       padding="VALID",
-                       dilation_rate=None,
-                       strides=None,
-                       name="GlobalAveragePool",
-                       data_format=None)
-        if verbose:
-            print "Shape after pooling: " + str(x.get_shape())
-
-        # Reshape to remove empty dimensions:
-        x = tf.reshape(x, [tf.shape(x)[0], self._params['NUM_LABELS']],
-                     name="global_pooling_reshape")
-        if verbose:
-            print "Finalshape: " + str(x.get_shape())
-
-
-        return x
