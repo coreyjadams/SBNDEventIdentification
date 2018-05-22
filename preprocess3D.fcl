@@ -3,8 +3,8 @@ ProcessDriver: {
   EnableFilter:    true
   RandomAccess:    true
   RandomSeed:      0
-  ProcessType:     ["QSumFilter","EventPIDLabel","Tensor3DFromCluster3D","CropNeutrino3D"]
-  ProcessName:     ["QSumFilter","EventPIDLabel","Tensor3DFromCluster3D","CropNeutrino3D"]
+  ProcessType:     ["Tensor3DFromCluster3D","EmptyTensorFilter","EventPIDLabel","CropNeutrino3D"]
+  ProcessName:     ["Tensor3DFromCluster3D","EmptyTensorFilter","EventPIDLabel","CropNeutrino3D"]
 #  StartEntry:      0
 #  NumEntries:      5
 
@@ -20,11 +20,9 @@ ProcessDriver: {
   }
 
   ProcessList: {
-    QSumFilter: {
-      ImageProducer: "sbndwire"
-      MinQSum:       [100, 100, 100]
-      MinPixel:      [20 , 20 , 20 ]
-      MinADC:        [20 , 20 , 20 ]
+    EmptyTensorFilter: {
+      Tensor3DProducer: "sbndvoxels"
+      MinVoxel3DCount: 50
     }
     EventPIDLabel: {
       OutputProducer:       "pid"
