@@ -31,7 +31,23 @@ class resnet(resnetcore):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
-        super(resnet, self).__init__(params)
+        super(resnet, self).__init__()
+        self.check_params(params)
+
+    def check_params(self, params):
+        super(resnet, self).check_params(params)
+
+        required_params = [
+            'NETWORK_DEPTH_PRE_MERGE',
+            'NETWORK_DEPTH_POST_MERGE',
+            'SHARE_WEIGHTS',
+            'NPLANES'
+        ]
+        for param in required_params:
+            if param not in params:
+                raise ConfigurationException("Missing paragmeter "+ str(param))
+
+        self._params = params
 
     def _build_network(self, input_placeholder, label_dims):
 

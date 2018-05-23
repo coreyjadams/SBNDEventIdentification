@@ -30,26 +30,22 @@ class resnet3d(resnetcore):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
-        required_params =[
-            'MINIBATCH_SIZE',
-            'SAVE_ITERATION',
-            'NUM_LABELS',
-            'N_INITIAL_FILTERS',
-            'NETWORK_DEPTH',
-            'RESIDUAL_BLOCKS_PER_LAYER',
-            'LOGDIR',
-            'BASE_LEARNING_RATE',
-            'TRAINING',
-            'RESTORE',
-            'ITERATIONS',
-        ]
+        super(resnet3d, self).__init__()
 
+        self.check_params(params)
+
+
+    def check_params(self, params):
+        super(resnet3d, self).check_params(params)
+
+        required_params = [
+            'NETWORK_DEPTH',
+        ]
         for param in required_params:
             if param not in params:
                 raise ConfigurationException("Missing paragmeter "+ str(param))
 
         self._params = params
-        super(resnet3d, self).__init__(params)
 
     def _build_network(self, input_placeholder, label_dims):
 

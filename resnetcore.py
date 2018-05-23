@@ -17,7 +17,7 @@ class resnetcore(object):
 
     U resnet implementation
     '''
-    def __init__(self, params):
+    def __init__(self):
         '''initialization
 
         Requires a list of parameters as python dictionary
@@ -28,25 +28,27 @@ class resnetcore(object):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
-        # required_params =[
-        #     'MINIBATCH_SIZE',
-        #     'SAVE_ITERATION',
-        #     'NUM_LABELS',
-        #     'N_INITIAL_FILTERS',
-        #     'NETWORK_DEPTH_PRE_MERGE',
-        #     'NETWORK_DEPTH_POST_MERGE',
-        #     'RESIDUAL_BLOCKS_PER_LAYER',
-        #     'LOGDIR',
-        #     'BASE_LEARNING_RATE',
-        #     'TRAINING',
-        #     'RESTORE',
-        #     'ITERATIONS',
-        # ]
+        self.core_params = [
+            'MINIBATCH_SIZE',
+            'SAVE_ITERATION',
+            'NUM_LABELS',
+            'N_INITIAL_FILTERS',
+            'RESIDUAL_BLOCKS_PER_LAYER',
+            'LOGDIR',
+            'BASE_LEARNING_RATE',
+            'TRAINING',
+            'RESTORE',
+            'ITERATIONS',
+        ]
 
-        # for param in required_params:
-        #     if param not in params:
-        #         raise ConfigurationException("Missing paragmeter "+ str(param))
 
+
+
+    def check_params(self, params):
+        for param in self.core_params:
+            if param not in params:
+                raise ConfigurationException("Missing paragmeter "+ str(param))
+        return
         # self._params = params
 
     def construct_network(self, dims, label_dims):
@@ -107,7 +109,7 @@ class resnetcore(object):
             for label_name in logits.keys():
 
                 correct_prediction = tf.equal(tf.argmax(self._input_labels[label_name], -1),
-                                              tf.argmax(self._predicted_labels[label_name], -1))
+                                              self._predicted_labels[label_name])
                 self._accuracy.update({
                     label_name : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
                     })
