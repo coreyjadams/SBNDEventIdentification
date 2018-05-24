@@ -126,7 +126,7 @@ class resnet_trainer(object):
                     {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
                     )
         elif 'KEYWORD_LABEL' in self._config['ANA_CONFIG']:
-            for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
+            for keyword_label in self._config['ANA_CONFIG']['KEYWORD_LABEL']:
                 label_core = keyword_label.split("_")[1]
                 label_dims.update(
                     {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
