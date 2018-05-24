@@ -102,9 +102,9 @@ class resnet_trainer(object):
             sys.stdout.write("Time to start ANA IO: {0:.2}s\n".format(end - start))
 
             if 'OUTPUT' in self._config['ANA_CONFIG']:
+                print "Initializing output file"
                 self._output = larcv.IOManager(self._config['ANA_CONFIG']['OUTPUT'])
                 self._output.initialize()
-
 
 
         # Net construction:
@@ -119,11 +119,22 @@ class resnet_trainer(object):
             raise Exception("Network shape exception")
 
         label_dims = dict()
-        for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
-            label_core = keyword_label.split("_")[1]
-            label_dims.update(
-                {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
-                )
+        if self._config['TRAINING']:
+            for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
+                label_core = keyword_label.split("_")[1]
+                label_dims.update(
+                    {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
+                    )
+        elif 'KEYWORD_LABEL' in self._config['ANA_CONFIG']:
+            for keyword_label in self._config['TRAIN_CONFIG']['KEYWORD_LABEL']:
+                label_core = keyword_label.split("_")[1]
+                label_dims.update(
+                    {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
+                    )
+        else:
+            raise Exception("Missing Keyword label from ana or train config.")
+
+
 
         self._net.construct_network(dims=dim_data, label_dims=label_dims)
         end = time.time()
