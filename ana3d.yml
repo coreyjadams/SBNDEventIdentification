@@ -38,6 +38,6 @@ ANA_CONFIG:
       - 'ana_ntrpion_label'
 
 # General parameters:
-LOGDIR: 'log_uresnet_five_particle/nue/'
+LOGDIR: '/home/mbernstein/SBNDEventIdentification/log_resnet_523/3D/'
 RESTORE: True
 GPU: 0

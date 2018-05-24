@@ -22,14 +22,14 @@ ANA_CONFIG:
     FILE: './config_singleplane/ana_io_nue.cfg'
     FILLER: 'ValIO'
     VERBOSITY: 3
-    KEYWORD_DATA: 'test_data'
+    KEYWORD_DATA: 'ana_data'
     KEYWORD_LABEL:
-      - 'test_neutrino_label'
-      - 'test_proton_label'
-      - 'test_chrpion_label'
-      - 'test_ntrpion_label'
+      - 'ana_neutrino_label'
+      - 'ana_proton_label'
+      - 'ana_chrpion_label'
+      - 'ana_ntrpion_label'
 
 # General parameters:
-LOGDIR: 'log_uresnet_five_particle/nue/'
+LOGDIR: '/home/mbernstein/SBNDEventIdentification/log_resnet_523/2D'
 RESTORE: True
 GPU: 0
