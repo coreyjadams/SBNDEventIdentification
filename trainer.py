@@ -129,7 +129,7 @@ class resnet_trainer(object):
             for keyword_label in self._config['ANA_CONFIG']['KEYWORD_LABEL']:
                 label_core = keyword_label.split("_")[1]
                 label_dims.update(
-                    {label_core : self._dataloaders['train'].fetch_data(keyword_label).dim()}
+                    {label_core : self._dataloaders['ana'].fetch_data(keyword_label).dim()}
                     )
         else:
             raise Exception("Missing Keyword label from ana or train config.")
