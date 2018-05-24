@@ -299,6 +299,14 @@ class resnet_trainer(object):
                 self._config['ANA_CONFIG']['KEYWORD_LABEL']).dim()
             )
 
+        label_dict = dict()
+        for keyword_label in self._config['ANA_CONFIG']['KEYWORD_LABEL']:
+            label_core = keyword_label.split("_")[1]
+            minibatch_label  = self._dataloaders['ana'].fetch_data(keyword_label).data()
+            minibatch_label = numpy.reshape(minibatch_label,
+                self._dataloaders['ana'].fetch_data(keyword_label).dim())
+            label_dict.update({label_core : minibatch_label})
+
 
         softmax,acc_all,acc_nonzero = self.ana(input_data  = batch_data,
                                                input_label = batch_label)
