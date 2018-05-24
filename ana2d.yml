@@ -19,7 +19,8 @@ TRAINING: False
 ITERATIONS: 5
 
 ANA_CONFIG:
-    FILE: './config_2D/ana_io_nue.cfg'
+    FILE: './config_2d/ana_io.cfg'
+    OUTPUT: './config_2d/ana_out.cfg'
     FILLER: 'ValIO'
     VERBOSITY: 3
     KEYWORD_DATA: 'ana_data'

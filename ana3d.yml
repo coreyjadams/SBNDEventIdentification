@@ -28,6 +28,7 @@ ITERATIONS: 5
 
 ANA_CONFIG:
     FILE: './config_3d/ana_io.cfg'
+    OUTPUT: './config_3d/ana_out.cfg'
     FILLER: 'ValIO'
     VERBOSITY: 3
     KEYWORD_DATA: 'ana_data'
