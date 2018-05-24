@@ -1,18 +1,18 @@
 # network parameters
 NUM_LABELS: 3
-N_INITIAL_FILTERS:  2
-NETWORK_DEPTH:  2
-RESIDUAL_BLOCKS_PER_LAYER: 1
+N_INITIAL_FILTERS:  12 #order 10-20
+NETWORK_DEPTH:  3 # can't go deeper than 7 (2^7); 4  - final resolution 8x8
+RESIDUAL_BLOCKS_PER_LAYER: 3
 
 # training parameters:
-N_MINIBATCH: 1
-MINIBATCH_SIZE: 1
+N_MINIBATCH: 1 #generally 1 is best
+MINIBATCH_SIZE: 32
 SAVE_ITERATION: 500
 REPORT_ITERATION: 1
 SUMMARY_ITERATION: 1
-BASE_LEARNING_RATE:  0.001
+BASE_LEARNING_RATE:  0.0003
 TRAINING: True
-ITERATIONS: 50
+ITERATIONS: 10000 # tens of thousands
 TRAIN_CONFIG:
     FILE: './config_3d/train_io.cfg'
     FILLER: 'TrainIO'
@@ -20,23 +20,23 @@ TRAIN_CONFIG:
     KEYWORD_DATA:  'main_data'
     KEYWORD_LABEL:
       - 'main_neutrino_label'
-      # - 'main_proton_label'
-      # - 'main_chrpion_label'
-      # - 'main_ntrpion_label'
+      - 'main_proton_label'
+      - 'main_chrpion_label'
+      - 'main_ntrpion_label'
 
 TEST_CONFIG:
-    FILE: './config_threeplane/test_io.cfg'
+    FILE: './config_3d/test_io.cfg'
     FILLER: 'TestIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'test_data'
     KEYWORD_LABEL:
       - 'test_neutrino_label'
-      # - 'test_proton_label'
-      # - 'test_chrpion_label'
-      # - 'test_ntrpion_label'
+      - 'test_proton_label'
+      - 'test_chrpion_label'
+      - 'test_ntrpion_label'
 
 
 # General parameters:
-LOGDIR: 'log_resnet_3d/'
-RESTORE: False
+LOGDIR: 'log_resnet_523/3D/'
+RESTORE: True
 GPU: 0
