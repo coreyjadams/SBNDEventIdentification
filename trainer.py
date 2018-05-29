@@ -49,6 +49,7 @@ class resnet_trainer(object):
 
     def initialize(self):
 
+
         dim_data = None
 
         # Prepare data managers:
@@ -275,10 +276,11 @@ class resnet_trainer(object):
             sys.stdout.flush()
 
     def ana(self, input_data, input_label):
+
         return  self._net.inference(sess        = self._sess,
                                     input_data  = input_data,
                                     input_label = input_label)
-        pass
+
 
 
     def ana_step(self):
@@ -286,17 +288,11 @@ class resnet_trainer(object):
         # Receive data (this will hang if IO thread is still running = this will wait for thread to finish & receive data)
         batch_data   = self._dataloaders['ana'].fetch_data(
             self._config['ANA_CONFIG']['KEYWORD_DATA']).data()
-        batch_label  = self._dataloaders['ana'].fetch_data(
-            self._config['ANA_CONFIG']['KEYWORD_LABEL']).data()
 
         # reshape right here:
         batch_data = numpy.reshape(batch_data,
             self._dataloaders['ana'].fetch_data(
                 self._config['ANA_CONFIG']['KEYWORD_DATA']).dim()
-            )
-        batch_label = numpy.reshape(
-            batch_label, self._dataloaders['ana'].fetch_data(
-                self._config['ANA_CONFIG']['KEYWORD_LABEL']).dim()
             )
 
         label_dict = dict()
@@ -308,54 +304,30 @@ class resnet_trainer(object):
             label_dict.update({label_core : minibatch_label})
 
 
-        softmax,acc_all,acc_nonzero = self.ana(input_data  = batch_data,
-                                               input_label = batch_label)
+        entries   = self._dataloaders['ana'].fetch_entries()
+        event_ids = self._dataloaders['ana'].fetch_event_ids()
 
-        print softmax
+        softmax_dict = self.ana(input_data  = batch_data,
+                                input_label = label_dict)
 
-        if self._output:
-          for entry in xrange(len(softmax)):
-            self._output.read_entry(entry)
-            data  = np.array(batch_data[entry]).reshape(softmax.shape[1:-1])
-            entries   = self._input_main.fetch_entries()
-            event_ids = self._input_main.fetch_event_ids()
+        softmax_dict = softmax_dict[0]
 
-          for entry in xrange(len(softmax)):
-            self._output.read_entry(entries[entry])
-            data  = np.array(batch_data[entry]).reshape(softmax.shape[1:-1])
-            label = np.array(batch_label[entry]).reshape(softmax.shape[1:-1])
+        # For each entry, write the values to file:
 
-            shower_score, track_score = (None,None)
-            data_2d = len(softmax.shape) == 4
-            # 3D case
-            if data_2d:
-              shower_score = softmax[entry,:,:,1]
-              track_score  = softmax[entry,:,:,2]
-            else:
-              shower_score = softmax[entry,:,:,:,1]
-              track_score  = softmax[entry,:,:,:,2]
+        for i_entry in range(self._config['MINIBATCH_SIZE']):
+            self._output.read_entry(entries[i_entry])
 
-            sum_score = shower_score + track_score
-            shower_score = shower_score / sum_score
-            track_score  = track_score  / sum_score
 
-            ssnet_result = (shower_score > track_score).astype(np.float32) + (track_score >= shower_score).astype(np.float32) * 2.0
-            nonzero_map  = (data > 1.0).astype(np.int32)
-            ssnet_result = (ssnet_result * nonzero_map).astype(np.float32)
+            for label in label_dict.keys():
+                this_prediction = softmax_dict[label][i_entry]
+                meta = self._output.get_data("meta",label)
+                for j in range(len(this_prediction)):
+                    meta.store(str(j), this_prediction[j])
 
-            if data_2d:
-              larcv_data = self._output.get_data("image2d","data")
-              larcv_out  = self._output.get_data("sparse2d","ssnet")
-              vs = larcv.as_image2d(ssnet_result)
-              sparse3d.set(vs,data.meta())
-            else:
-              larcv_data = self._output.get_data("sparse3d","data")
-              larcv_out  = self._output.get_data("sparse3d","ssnet")
-              vs = larcv.as_tensor3d(ssnet_result)
-              sparse3d.set(vs,data.meta())
+
+
             self._output.save_entry()
-        else:
-            print "Acc all: {}, Acc non zero: {}".format(acc_all, acc_nonzero)
+
 
         self._dataloaders['ana'].next(store_entries   = (not self._config['TRAINING']),
                                       store_event_ids = (not self._config['TRAINING']))
@@ -375,3 +347,6 @@ class resnet_trainer(object):
                 self.train_step()
             else:
                 self.ana_step()
+
+        if 'ANA_CONFIG' in self._config and 'OUTPUT' in self._config['ANA_CONFIG']:
+            self._output.finalize()
