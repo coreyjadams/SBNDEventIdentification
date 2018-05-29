@@ -29,12 +29,15 @@ def residual_block(input_tensor,
         with tf.variable_scope(name + "_0"):
             # Batch normalization is applied first:
             if batch_norm:
-                x = tf.layers.batch_normalization(x,
-                                                  training=is_training,
-                                                  trainable=is_training,
-                                                  name="BatchNorm",
-                                                  reuse=reuse)
-
+                with tf.variable_scope("batch_norm") as scope:
+                    x = tf.contrib.layers.batch_norm(x,
+                                                     updates_collections=None,
+                                                     decay=0.9,
+                                                     is_training=is_training,
+                                                     trainable=is_training,
+                                                     scope=scope,
+                                                     # name="BatchNorm",
+                                                     reuse=reuse)
             # Conv2d:
             x = tf.layers.conv3d(x, n_filters,
                                  kernel_size=[3, 3, 3],
@@ -54,11 +57,15 @@ def residual_block(input_tensor,
 
             # Batch normalization is applied first:
             if batch_norm:
-                x = tf.layers.batch_normalization(x,
-                                                  training=is_training,
-                                                  trainable=is_training,
-                                                  name="BatchNorm",
-                                                  reuse=reuse)
+                with tf.variable_scope("batch_norm") as scope:
+                    x = tf.contrib.layers.batch_norm(x,
+                                                     updates_collections=None,
+                                                     decay=0.9,
+                                                     is_training=is_training,
+                                                     trainable=is_training,
+                                                     scope=scope,
+                                                     # name="BatchNorm",
+                                                     reuse=reuse)
 
 
             # Conv2d:
@@ -110,11 +117,15 @@ def downsample_block(input_tensor,
         with tf.variable_scope(name + "_0"):
             # Batch normalization is applied first:
             if batch_norm:
-                x = tf.layers.batch_normalization(x,
-                                                  training=is_training,
-                                                  trainable=is_training,
-                                                  name="BatchNorm",
-                                                  reuse=reuse)
+                with tf.variable_scope("batch_norm") as scope:
+                    x = tf.contrib.layers.batch_norm(x,
+                                                     updates_collections=None,
+                                                     decay=0.9,
+                                                     is_training=is_training,
+                                                     trainable=is_training,
+                                                     scope=scope,
+                                                     # name="BatchNorm",
+                                                     reuse=reuse)
 
 
             # Conv2d:
@@ -136,11 +147,15 @@ def downsample_block(input_tensor,
 
             # Batch normalization is applied first:
             if batch_norm:
-                x = tf.layers.batch_normalization(x,
-                                                  training=is_training,
-                                                  trainable=is_training,
-                                                  name="BatchNorm",
-                                                  reuse=reuse)
+                with tf.variable_scope("batch_norm") as scope:
+                    x = tf.contrib.layers.batch_norm(x,
+                                                     updates_collections=None,
+                                                     decay=0.9,
+                                                     is_training=is_training,
+                                                     trainable=is_training,
+                                                     scope=scope,
+                                                     # name="BatchNorm",
+                                                     reuse=reuse)
 
             # Conv2d:
             x = tf.layers.conv3d(x,
@@ -214,11 +229,15 @@ def upsample_block(input_tensor,
         with tf.variable_scope(name + "_0"):
             # Batch normalization is applied first:
             if batch_norm:
-                x = tf.layers.batch_normalization(x,
-                                                  training=is_training,
-                                                  trainable=is_training,
-                                                  name="BatchNorm",
-                                                  reuse=reuse)
+                with tf.variable_scope("batch_norm") as scope:
+                    x = tf.contrib.layers.batch_norm(x,
+                                                     updates_collections=None,
+                                                     decay=0.9,
+                                                     is_training=is_training,
+                                                     trainable=is_training,
+                                                     scope=scope,
+                                                     # name="BatchNorm",
+                                                     reuse=reuse)
 
             # Conv2d:
             x = tf.layers.conv3d_transpose(x, n_output_filters,
@@ -239,11 +258,15 @@ def upsample_block(input_tensor,
 
              # Batch normalization is applied first:
             if batch_norm:
-                x = tf.layers.batch_normalization(x,
-                                                  training=is_training,
-                                                  trainable=is_training,
-                                                  name="BatchNorm",
-                                                  reuse=reuse)
+                with tf.variable_scope("batch_norm") as scope:
+                    x = tf.contrib.layers.batch_norm(x,
+                                                     updates_collections=None,
+                                                     decay=0.9,
+                                                     is_training=is_training,
+                                                     trainable=is_training,
+                                                     scope=scope,
+                                                     # name="BatchNorm",
+                                                     reuse=reuse)
 
 
             # Conv2d:
