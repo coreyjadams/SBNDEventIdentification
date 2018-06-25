@@ -1,7 +1,7 @@
 import sys
 import time
 
-
+import numpy as np
 import tensorflow as tf
 
 from utils import residual_block, downsample_block, upsample_block
@@ -69,7 +69,8 @@ class resnet(resnetcore):
 
         # Initial convolution to get to the correct number of filters:
         for p in range(len(x)):
-            x[p] = tf.layers.conv2d(x[p], self._params['N_INITIAL_FILTERS'],
+
+	    x[p] = tf.layers.conv2d(x[p], self._params['N_INITIAL_FILTERS'],
                                     kernel_size=[7, 7],
                                     strides=[2, 2],
                                     padding='same',
@@ -93,25 +94,30 @@ class resnet(resnetcore):
 
         # Begin the process of residual blocks and downsampling:
         for p in xrange(len(x)):
+	
+	    x[p] = tf.nn.dropout(x[p],0.5)
+	    # dropout 	
             for i in xrange(self._params['NETWORK_DEPTH_PRE_MERGE']):
-
                 for j in xrange(self._params['RESIDUAL_BLOCKS_PER_LAYER']):
-                    x[p] = residual_block(x[p], self._params['TRAINING'],
+	                x[p] = residual_block(x[p], self._params['TRAINING'],
                                           batch_norm=True,
                                           name="resblock_down_plane{0}_{1}_{2}".format(p, i, j))
-
-                x[p] = downsample_block(x[p], self._params['TRAINING'],
+		x[p] = downsample_block(x[p], self._params['TRAINING'],
                                         batch_norm=True,
                                         name="downsample_plane{0}_{1}".format(p,i))
                 if verbose:
                     print "Plane {p}, layer {i}: x[{p}].get_shape(): {s}".format(
                         p=p, i=i, s=x[p].get_shape())
-
         # print "Reached the deepest layer."
+
 
         # Here, concatenate all the planes together before the residual block:
         x = tf.concat(x, axis=-1)
 
+	# dropout layer again?	
+		
+	x = tf.nn.dropout(x,0.5)
+        
         if verbose:
             print "Shape after concatenation: " + str(x.get_shape())
 
@@ -129,7 +135,7 @@ class resnet(resnetcore):
             print "Shape after final block: " + str(x.get_shape())
 
 
-        final_convolutional_layer = x
+        final_convolutional_layer = tf.nn.dropout(x,0.5)
 
         # At this point, we split into several bottlenecks to produce
         # The final output logits for each label.
