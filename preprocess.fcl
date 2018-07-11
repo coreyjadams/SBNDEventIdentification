@@ -42,10 +42,10 @@ ProcessDriver: {
   EnableFilter:    true
   RandomAccess:    false
   RandomSeed:      0
-  ProcessType:     ["Tensor3DFromCluster3D","ParentParticleSeg","CropNeutrino2D","CropNeutrino3D","EventPIDLabel","EmptyTensorFilter","QSumFilter","LeptonSegLabel","LeptonSegLabel3D"]
-  ProcessName:     ["Tensor3DFromCluster3D","ParentParticleSeg","CropNeutrino2D","CropNeutrino3D","EventPIDLabel","EmptyTensorFilter","QSumFilter","LeptonSegLabel","LeptonSegLabel3D"]
+  ProcessType:     ["Cluster2DThreshold","Tensor3DFromCluster3D","ParentParticleSeg","CropNeutrino2D","CropNeutrino3D","EventPIDLabel","EmptyTensorFilter","QSumFilter","LeptonSegLabel","LeptonSegLabel3D","ThresholdTensor3D"]
+  ProcessName:     ["Cluster2DThreshold","Tensor3DFromCluster3D","ParentParticleSeg","CropNeutrino2D","CropNeutrino3D","EventPIDLabel","EmptyTensorFilter","QSumFilter","LeptonSegLabel","LeptonSegLabel3D","ThresholdTensor3D"]
   # StartEntry: 0
-  # NumEntries: 5
+  NumEntries: 50
 
 
 
@@ -91,6 +91,16 @@ ProcessDriver: {
   }
 
   ProcessList: {
+    Cluster2DThreshold: {
+      Cluster2DProducer: "sbndseg"
+      OutputProducer:    "sbndseg"
+      Threshold:         0.05
+    }
+    ThresholdTensor3D: {
+      Cluster2DProducer: ["sbndvoxels", "sbndlepton"]
+      OutputProducer:    ["sbndvoxels", "sbndlepton"]
+      Threshold:         0.5
+    }
     Tensor3DFromCluster3D: {
       Cluster3DProducer:   "sbndseg"
       OutputProducer:      "sbndvoxels"
