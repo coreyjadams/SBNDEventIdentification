@@ -1,44 +1,42 @@
 # network parameters
-NUM_LABELS: 3 # (background, cosmic, neutrino)
+NUM_LABELS: 3
 N_INITIAL_FILTERS:  12 #order 10-20
 NETWORK_DEPTH:  3 # can't go deeper than 7 (2^7); 4  - final resolution 8x8
 RESIDUAL_BLOCKS_PER_LAYER: 3
 
 # training parameters:
-N_MINIBATCH: 1
-MINIBATCH_SIZE: 12
+N_MINIBATCH: 1 #generally 1 is best
+MINIBATCH_SIZE: 32
 SAVE_ITERATION: 500
-REPORT_ITERATION: 10
-SUMMARY_ITERATION: 5
-BALANCE_LOSS:  True
-BASE_LEARNING_RATE:  0.0001
-TRAINING: False
-ITERATIONS: 5
-#TRAIN_CONFIG:
-#    FILE: './config/train_io.cfg'
-#    FILLER: 'TrainIO'
-#    VERBOSITY: 3
-#    KEYWORD_DATA: 'main_data'
-#    KEYWORD_LABEL: 'main_label'
-
-# TEST_CONFIG:
-#     CONFIG: 'config/test_io.cfg'
-#     FILLER: 'TrainIO'
-#     VERBOSITY: 3
-
-ANA_CONFIG:
-    FILE: './config_3d/ana_io.cfg'
-    OUTPUT: './config_3d/ana_out.cfg'
-    FILLER: 'ValIO'
+REPORT_ITERATION: 1
+SUMMARY_ITERATION: 1
+BASE_LEARNING_RATE:  0.0003
+TRAINING: True
+ITERATIONS: 10000 # tens of thousands
+TRAIN_CONFIG:
+    FILE: './config_3d/train_io.cfg'
+    FILLER: 'TrainIO'
     VERBOSITY: 3
-    KEYWORD_DATA: 'ana_data'
+    KEYWORD_DATA:  'main_data'
     KEYWORD_LABEL:
-      - 'ana_neutrino_label'
-      - 'ana_proton_label'
-      - 'ana_chrpion_label'
-      - 'ana_ntrpion_label'
+      - 'main_neutrino_label'
+      - 'main_proton_label'
+      - 'main_chrpion_label'
+      - 'main_ntrpion_label'
+
+TEST_CONFIG:
+    FILE: './config_3d/test_io.cfg'
+    FILLER: 'TestIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'test_data'
+    KEYWORD_LABEL:
+      - 'test_neutrino_label'
+      - 'test_proton_label'
+      - 'test_chrpion_label'
+      - 'test_ntrpion_label'
+
 
 # General parameters:
-LOGDIR: '/home/mbernstein/SBNDEventIdentification/log_resnet_523/3D/'
+LOGDIR: 'log_resnet_523/3D/'
 RESTORE: True
 GPU: 0
