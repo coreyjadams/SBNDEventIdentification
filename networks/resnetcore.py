@@ -1,6 +1,7 @@
 import sys
 import time
 
+from networkcore import networkcore
 
 import tensorflow as tf
 
@@ -12,7 +13,7 @@ class IncompleteFeedDict(Exception): pass
 
 
 # Main class
-class resnetcore(object):
+class resnetcore(networkcore):
     '''Define a network model and run training
 
     U resnet implementation
@@ -28,233 +29,169 @@ class resnetcore(object):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
-        self.core_params = [
-            'MINIBATCH_SIZE',
-            'SAVE_ITERATION',
-            'NUM_LABELS',
-            'N_INITIAL_FILTERS',
-            'RESIDUAL_BLOCKS_PER_LAYER',
-            'LOGDIR',
-            'BASE_LEARNING_RATE',
-            'TRAINING',
-            'RESTORE',
-            'ITERATIONS',
-        ]
 
+        # Call the base class to initialize _core_network_params:
+        super(resnetcore,self).__init__()
 
+        # Extend the parameters to include the needed ones:
 
+        # As of this moment, resnetcore doesn't actually add any params
+        # self._core_network_params.append([
+        #     # 'MINIBATCH_SIZE',
+        #     # 'SAVE_ITERATION',
+        #     # 'NUM_LABELS',
+        #     # 'LOGDIR',
+        #     # 'RESTORE',
+        #     # 'ITERATIONS',
+        # ])
 
-    def check_params(self, params):
-        for param in self.core_params:
-            if param not in params:
-                raise ConfigurationException("Missing paragmeter "+ str(param))
         return
-        # self._params = params
 
-    def construct_network(self, dims, label_dims):
-        '''Build the network model
 
-        Initializes the tensorflow model according to the parameters
+    def _initialize_input(self, dims, label_dims=None):
+        '''Initialize input parameters of the network.  Must return a dict type
+
+        For exampe, paremeters of the dict can be 'image', 'label', 'weights', etc
+
+        Arguments:
+            dims {[type]} -- [description]
+
+        Keyword Arguments:
+            label_dims {[type]} -- [description] (default: {None})
+
+        Raises:
+            NotImplementedError -- [description]
         '''
 
-        tf.reset_default_graph()
+        inputs = dict()
+
+        inputs.update({
+            'image' :  tf.placeholder(tf.float32, dims['image'], name="input_image")
+        })
 
 
-        start = time.time()
-        # Initialize the input layers:
-        self._input_image  = tf.placeholder(tf.float32, dims, name="input_image")
+        if label_dims is not None:
+            if isinstance(label_dims, dict):
+                inputs['label'] = dict()
+                for key in label_dims:
+                    inputs['label'].update({
+                        key : tf.placeholder(tf.int64, label_dims[key], name="label_{}".format(key))
+                    })
+            else:
+                inputs['label'] =  tf.placeholder(tf.int64, label_dims, name="label".format(key))
 
-        self._input_labels = dict()
+        return inputs
 
-        for label_name in label_dims.keys():
-            y = tf.placeholder(tf.int64,
-                               label_dims[label_name],
-                               name="label_{0}".format(label_name))
-            self._input_labels.update({label_name : y })
+    def _create_softmax(self, logits):
+        '''Must return a dict type
 
+        [description]
 
-        sys.stdout.write(" - Finished input placeholders [{0:.2}s]\n".format(time.time() - start))
-        start = time.time()
-        logits = self._build_network(self._input_image, label_dims)
+        Arguments:
+            logits {[type]} -- [description]
 
-        sys.stdout.write(" - Finished Network graph [{0:.2}s]\n".format(time.time() - start))
-        start = time.time()
-        # for p in xrange(len(logits_by_plane)):
-        #     print "logits_by_plane[{0}].get_shape(): ".format(p) + str(logits_by_plane[p].get_shape())
-        self._softmax = dict()
-        self._predicted_labels = dict()
-        for label_name in logits.keys():
-            self._softmax.update(
-                {label_name : tf.nn.softmax(logits[label_name]) }
-                )
+        Raises:
+            NotImplementedError -- [description]
+        '''
 
-            self._predicted_labels.update(
-                {label_name : tf.argmax(logits[label_name], axis=-1 ) }
-                )
+        # For the logits, we compute the softmax and the predicted label
 
 
-        # Keep a list of trainable variables for minibatching:
-        with tf.variable_scope('gradient_accumulation'):
-            self._accum_vars = [tf.Variable(tv.initialized_value(),
-                                trainable=False) for tv in tf.trainable_variables()]
+        output = dict()
 
-        sys.stdout.write(" - Finished gradient accumulation [{0:.2}s]\n".format(time.time() - start))
-        start = time.time()
+        if isinstance(logits, dict):
+            output['softmax']    = dict()
+            output['prediction'] = dict()
+            for key in logits.keys():
+                output['softmax'][key]    = tf.nn.softmax(logits[key])
+                output['prediction'][key] = tf.nn.argmax(logits[key], axis=-1)
+
+
+        else:
+            output['softmax'] = tf.nn.softmax(logits)
+            output['prediction'] = tf.nn.argmax(logits, axis=-1)
+
+        return output
 
 
 
-        # Accuracy calculations:
+
+
+    def _calculate_loss(self, inputs, outputs):
+        ''' Calculate the loss.
+
+        returns a single scalar for the optimizer to use.
+        '''
+
+
+        with tf.name_scope('cross_entropy'):
+
+
+            # If logits is a dictionary form, create a loss against each label name:
+            if isinstance(logits, dict):
+                losses = []
+
+                for key in logits:
+                    losses.append(
+                        tf.reduce_mean(
+                            tf.nn.softmax_cross_entropy_with_logits(labels=inputs['label'][key],
+                                                                    logits=logits[key])
+                        )
+                    )
+                    # Individual summaries:
+                    tf.summary.scalar("{}_loss".format(key), losses[-1])
+
+                # Compute the total loss:
+                loss = sum(losses)
+
+
+            else:
+                #otherwise, just one set of logits, against one label:
+                loss = tf.reduce_mean(
+                    tf.nn.softmax_cross_entropy_with_logits(labels=inputs['label'],
+                                                            logits=logits))
+
+
+
+            # If desired, add weight regularization loss:
+            if 'REGULARIZE_WEIGHTS' in self._params:
+                reg_loss = tf.losses.get_regularization_loss()
+                loss += reg_loss
+
+
+            # Total summary:
+            tf.summary.scalar("Total Loss",loss)
+
+            return loss
+
+    def _calculate_accuracy(self, inputs, outputs):
+        ''' Calculate the accuracy.
+
+        '''
+
+        # Compare how often the input label and the output prediction agree:
+
         with tf.name_scope('accuracy'):
-            self._accuracy = dict()
-            for label_name in logits.keys():
 
-                correct_prediction = tf.equal(tf.argmax(self._input_labels[label_name], -1),
-                                              self._predicted_labels[label_name])
-                self._accuracy.update({
-                    label_name : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            if isinstance(outputs['prediction'], dict):
+                accuracy = dict()
+
+                for key in logits.keys():
+
+                    correct_prediction = tf.equal(tf.argmax(inputs[key], -1),
+                                                  outputs['prediction'][key])
+                    accuracy.update({
+                        key : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
                     })
 
 
-                # Add the accuracies to the summary:
-                tf.summary.scalar("{0}_Accuracy".format(label_name), self._accuracy[label_name])
+                    # Add the accuracies to the summary:
+                    tf.summary.scalar("{0}_Accuracy".format(key), accuracy[key])
 
-        sys.stdout.write(" - Finished accuracy [{0:.2}s]\n".format(time.time() - start))
-        start = time.time()
+            else:
+                correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
+                                              outputs['prediction'])
+                accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+                tf.summary.scalar("Accuracy", accuracy)
 
-        # Loss calculations:
-        with tf.name_scope('cross_entropy'):
-            self._losses = dict()
-            for label_name in logits.keys():
-                _loss = tf.reduce_mean(
-                    tf.nn.softmax_cross_entropy_with_logits(labels=self._input_labels[label_name],
-                                                            logits=logits[label_name]))
-
-                tf.summary.scalar("{0}_Loss".format(label_name), _loss)
-
-                if 'BOOST_LOSSES' in self._params:
-                    if label_name in self._params['BOOST_LOSSES']:
-                        _loss *= self._params['BOOST_LOSSES'][label_name]
-
-                self._losses.update({label_name : _loss})
-
-            self._loss = sum(self._losses.itervalues())
-
-            tf.summary.scalar("Total_Loss", self._loss)
-
-        sys.stdout.write(" - Finished cross entropy [{0:.2}s]\n".format(time.time() - start))
-        start = time.time()
-
-        # Optimizer:
-        if self._params['TRAINING']:
-            with tf.name_scope("training"):
-                self._global_step = tf.Variable(0, dtype=tf.int32,
-                    trainable=False, name='global_step')
-                if self._params['BASE_LEARNING_RATE'] <= 0:
-                    opt = tf.train.AdamOptimizer()
-                else:
-                    opt = tf.train.AdamOptimizer(self._params['BASE_LEARNING_RATE'])
-
-                # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-                # with tf.control_dependencies(update_ops):
-
-                # Variables for minibatching:
-                self._zero_gradients =  [tv.assign(tf.zeros_like(tv)) for tv in self._accum_vars]
-                self._accum_gradients = [self._accum_vars[i].assign_add(gv[0]) for
-                                         i, gv in enumerate(opt.compute_gradients(self._loss))]
-                self._apply_gradients = opt.apply_gradients(zip(self._accum_vars, tf.trainable_variables()),
-                    global_step = self._global_step)
-
-        sys.stdout.write(" - Finished optimizer [{0:.2}s]\n".format(time.time() - start))
-        start = time.time()
-
-
-        # Merge the summaries:
-        self._merged_summary = tf.summary.merge_all()
-        sys.stdout.write(" - Finished snapshotting [{0:.2}s]\n".format(time.time() - start))
-
-
-    def apply_gradients(self,sess):
-
-        return sess.run( [self._apply_gradients], feed_dict = {})
-
-
-    def feed_dict(self, images, labels):
-        '''Build the feed dict
-
-        Take input images, labels and match
-        to the correct feed dict tensorrs
-
-        Arguments:
-            images {numpy.ndarray} -- Image array, [BATCH, L, W, F]
-            labels {numpy.ndarray} -- Label array, [BATCH, L, W, F]
-
-        Returns:
-            [dict] -- Feed dictionary for a tf session run call
-
-        '''
-        fd = dict()
-        fd.update({self._input_image : images})
-
-        if labels is not None:
-            for label_name in labels.keys():
-                fd.update({self._input_labels[label_name] : labels[label_name]})
-
-        return fd
-
-    def losses():
-        pass
-
-    def make_summary(self, sess, input_data, input_label):
-        fd = self.feed_dict(images  = input_data,
-                            labels  = input_label)
-        return sess.run(self._merged_summary, feed_dict=fd)
-
-    def zero_gradients(self, sess):
-        sess.run(self._zero_gradients)
-
-    def accum_gradients(self, sess, input_data, input_label):
-
-        feed_dict = self.feed_dict(images  = input_data,
-                                   labels  = input_label)
-
-        ops = [self._accum_gradients]
-        doc = ['']
-        # classification
-        ops += [self._loss]
-        doc += ['loss']
-
-        for label_name in self._accuracy.keys():
-            ops += [self._accuracy[label_name]]
-            doc += ["acc. {0}".format(label_name)]
-
-        return sess.run(ops, feed_dict = feed_dict ), doc
-
-
-    def run_test(self,sess, input_data, input_label):
-        feed_dict = self.feed_dict(images   = input_data,
-                                   labels   = input_label)
-
-        ops = [self._loss]
-        doc = ['loss']
-        for label_name in self._accuracy.keys():
-            ops += [self._accuracy[label_name]]
-            doc += ["acc. {0}".format(label_name)]
-
-        return sess.run(ops, feed_dict = feed_dict ), doc
-
-    def inference(self,sess,input_data,input_label=None):
-
-        feed_dict = self.feed_dict(images=input_data, labels=input_label)
-
-        ops = [self._softmax]
-        if input_label is not None:
-            for label_name in self._accuracy.keys():
-                ops += [self._accuracy[label_name]]
-
-        return sess.run( ops, feed_dict = feed_dict )
-
-    def global_step(self, sess):
-        return sess.run(self._global_step)
-
-    def _build_network(self, input_placeholder, label_dims):
-        raise NotImplementedError("_build_network must be implemented by the child class")
+        return accuracy

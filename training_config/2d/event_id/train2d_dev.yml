@@ -1,11 +1,14 @@
 # network parameters
-NUM_LABELS: 36
-N_INITIAL_FILTERS:  6
-NETWORK_DEPTH_PRE_MERGE:  1
-NETWORK_DEPTH_POST_MERGE:  1
-RESIDUAL_BLOCKS_PER_LAYER: 2
-NPLANES: 3
-SHARE_WEIGHTS: false
+NAME: 'resnet'
+
+NETWORK:
+    N_INITIAL_FILTERS:  6
+    NETWORK_DEPTH_PRE_MERGE:  1
+    NETWORK_DEPTH_POST_MERGE:  1
+    RESIDUAL_BLOCKS_PER_LAYER: 2
+    NPLANES: 3
+    SHARE_WEIGHTS: false
+
 
 # training parameters:
 N_MINIBATCH: 1
@@ -15,30 +18,24 @@ REPORT_ITERATION: 10
 SUMMARY_ITERATION: 1
 BASE_LEARNING_RATE:  0.001
 TRAINING: True
-ITERATIONS: 5000
-TRAIN_CONFIG:
-    FILE: './config_2d/train_io.cfg'
-    FILLER: 'TrainIO'
-    VERBOSITY: 3
-    KEYWORD_DATA:  'main_data'
-    KEYWORD_LABEL:
-      - 'main_neutrino_label'
-      - 'main_proton_label'
-      - 'main_chrpion_label'
-      - 'main_ntrpion_label'
+ITERATIONS: 50
 
-# TEST_CONFIG:
-#     FILE: './config_threeplane/test_io.cfg'
-#     FILLER: 'TestIO'
-#     VERBOSITY: 3
-#     KEYWORD_DATA:  'test_data'
-#     KEYWORD_LABEL:
-#       - 'test_neutrino_label'
-#       - 'test_proton_label'
-#       - 'test_chrpion_label'
-#       - 'test_ntrpion_label'
+# IO Parameters:
+IO:
+
+    TRAIN:
+      FILE: './larcv_io_config/2d/dev/event_id/train_io.cfg'
+      FILLER: 'TrainIO'
+      VERBOSITY: 3
+      KEYWORD_DATA:  'main_data'
+      KEYWORD_LABEL:
+        - 'main_neutrino_label'
+        - 'main_proton_label'
+        - 'main_chrpion_label'
+        - 'main_ntrpion_label'
+
 
 # General parameters:
-LOGDIR: 'log_resnet_2d/'
+LOGDIR: 'log/log_resnet_2d/'
 RESTORE: False
 GPU: 0

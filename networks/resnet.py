@@ -20,7 +20,7 @@ class resnet(resnetcore):
 
     U resnet implementation
     '''
-    def __init__(self, params):
+    def __init__(self):
         '''initialization
 
         Requires a list of parameters as python dictionary
@@ -31,39 +31,52 @@ class resnet(resnetcore):
         Raises:
             ConfigurationException -- Missing a required parameter
         '''
+
+        # Call the base class to initialize _core_network_params:
         super(resnet, self).__init__()
-        self.check_params(params)
 
-    def check_params(self, params):
-        super(resnet, self).check_params(params)
+        # Extend the parameters to include the needed ones:
 
-        required_params = [
+        self._core_network_params += [
+            'N_INITIAL_FILTERS',
+            'RESIDUAL_BLOCKS_PER_LAYER',
             'NETWORK_DEPTH_PRE_MERGE',
             'NETWORK_DEPTH_POST_MERGE',
             'SHARE_WEIGHTS',
-            'NPLANES'
+            'NPLANES',
         ]
-        for param in required_params:
-            if param not in params:
-                raise ConfigurationException("Missing paragmeter "+ str(param))
 
-        self._params = params
 
-    def _build_network(self, input_placeholder, label_dims):
+        return
 
-        x = input_placeholder
+
+
+
+    def _build_network(self, inputs, verbosity=2):
+
+        ''' verbosity 0 = no printouts
+            verbosity 1 = sparse information
+            verbosity 2 = debug
+        '''
+
+        # Spin off the input image(s):
+
+
+        x = inputs['image']
+
+        if verbosity > 1:
+            print "Initial input shape: " + str(x.get_shape())
 
         # We break up the intial filters into parallel U ResNets
         # The filters are concatenated at some point, and progress together
 
-        verbose = False
 
-        if verbose:
+        if verbose > 1:
             print "Initial shape: " + str(x.get_shape())
         n_planes = self._params['NPLANES']
 
         x = tf.split(x, n_planes*[1], -1)
-        if verbose:
+        if verbose > 1:
             for p in range(len(x)):
                 print "Plane {0} initial shape:".format(p) + str(x[p].get_shape())
 
@@ -81,7 +94,7 @@ class resnet(resnetcore):
             # ReLU:
             x[p] = tf.nn.relu(x[p])
 
-        if verbose:
+        if verbose > 1:
             print "After initial convolution: "
 
             for p in range(len(x)):
@@ -103,7 +116,7 @@ class resnet(resnetcore):
                 x[p] = downsample_block(x[p], self._params['TRAINING'],
                                         batch_norm=True,
                                         name="downsample_plane{0}_{1}".format(p,i))
-                if verbose:
+                if verbose > 1:
                     print "Plane {p}, layer {i}: x[{p}].get_shape(): {s}".format(
                         p=p, i=i, s=x[p].get_shape())
 
@@ -112,7 +125,7 @@ class resnet(resnetcore):
         # Here, concatenate all the planes together before the residual block:
         x = tf.concat(x, axis=-1)
 
-        if verbose:
+        if verbose > 1:
             print "Shape after concatenation: " + str(x.get_shape())
 
         # At the bottom, do another residual block:
@@ -125,7 +138,7 @@ class resnet(resnetcore):
                                  batch_norm=True,
                                  name="downsample_postmerge{0}".format(i))
 
-        if verbose:
+        if verbose > 1:
             print "Shape after final block: " + str(x.get_shape())
 
 
@@ -153,7 +166,7 @@ class resnet(resnetcore):
                              trainable=self._params['TRAINING'],
                              name="BottleneckConv2D_{0}".format(label_name))
 
-            if verbose:
+            if verbose > 1:
                 print "Shape after {0} bottleneck: ".format(label_name) + str(this_x.get_shape())
 
             # Apply global average pooling to get the right final shape:
@@ -167,7 +180,7 @@ class resnet(resnetcore):
                        name="GlobalAveragePool_{0}".format(label_name),
                        data_format=None)
 
-            if verbose:
+            if verbose > 1:
                 print "Shape after {0} pooling: ".format(label_name) + str(this_x.get_shape())
 
 
@@ -175,7 +188,7 @@ class resnet(resnetcore):
             this_x = tf.reshape(this_x, [tf.shape(this_x)[0], num_labels],
                      name="global_pooling_reshape_{0}".format(label_name))
 
-            if verbose:
+            if verbose > 1:
                 print "Final {0} shape: ".format(label_name) + str(this_x.get_shape())
 
 

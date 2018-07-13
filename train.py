@@ -1,18 +1,30 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 import yaml
 import sys
 
-from trainer import resnet_trainer
+# import all of the possible trainers:
+from networks import resnet_trainer
 
 
 def main(params):
-    with resnet_trainer(params) as trainer:
-        trainer.batch_process()
+
+    trainer = None
+
+    if params['NAME'] == 'resnet':
+        trainer = resnet_trainer.resnet_trainer(params)
+
+
+    if trainer is None:
+        raise Exception("Could not configure the correct trainer")
+
+    trainer.initialize()
+    trainer.batch_process()
+
 
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        sys.stdout.write('Requires configuration file.  [python train.py config.yml]\n')
+        sys.stdout.write('Requires configuration file.  [train.py config.yml]\n')
         sys.stdout.flush()
         exit()
 
