@@ -186,8 +186,8 @@ class trainercore(object):
         for j in xrange(self._config['N_MINIBATCH']):
             io_start = time.time()
 
-            minibatch_data = fetch_minibatch_data('TRAIN')
-            minibatch_dims = fetch_minibatch_dims('TRAIN')
+            minibatch_data = self.fetch_minibatch_data('TRAIN')
+            minibatch_dims = self.fetch_minibatch_dims('TRAIN')
 
             # reshape:
             minibatch_data['image'] = numpy.reshape(minibatch_data['image'],minibatch_dims['image'])
@@ -238,8 +238,8 @@ class trainercore(object):
             self._dataloaders['TEST'].next()
 
 
-            test_data = fetch_minibatch_data('TEST')
-            test_dims = fetch_minibatch_dims('TEST')
+            test_data = self.fetch_minibatch_data('TEST')
+            test_dims = self.fetch_minibatch_dims('TEST')
 
             # reshape:
             test_data['image'] = numpy.reshape(test_data['image'],test_dims['image'])
@@ -294,8 +294,8 @@ class trainercore(object):
 
         # Receive data (this will hang if IO thread is still running =
         # this will wait for thread to finish & receive data)
-        batch_data = fetch_minibatch_data('ANA')
-        batch_dims = fetch_minibatch_dims('ANA')
+        batch_data = self.fetch_minibatch_data('ANA')
+        batch_dims = self.fetch_minibatch_dims('ANA')
 
         # reshape right here:
         batch_data = numpy.reshape(batch_data['image'], batch_dims['image'])

@@ -88,7 +88,7 @@ class networkcore(object):
         sys.stdout.write(" - Finished gradient accumulation [{0:.2}s]\n".format(time.time() - start))
 
         start = time.time()
-        trainable_loss = self._calculate_loss(self._input, self._logits)
+        self._loss = self._calculate_loss(self._input, self._logits)
         sys.stdout.write(" - Finished loss calculation [{0:.2}s]\n".format(time.time() - start))
 
 
@@ -99,7 +99,7 @@ class networkcore(object):
 
         # Optimizer:
         start = time.time()
-        self._create_optimizer(trainable_loss)
+        self._create_optimizer(self._loss)
         sys.stdout.write(" - Finished optimizer [{0:.2}s]\n".format(time.time() - start))
 
 
@@ -208,7 +208,11 @@ class networkcore(object):
 
         for key in inputs:
             if inputs[key] is not None:
-                fd.update({self._input[key] : inputs[key]})
+                if isinstance(inputs[key], dict):
+                    for secondard_key in inputs[key].keys():
+                        fd.update({self._input[key][secondard_key] : inputs[key][secondard_key]})
+                else:
+                    fd.update({self._input[key] : inputs[key]})
 
         return fd
 
