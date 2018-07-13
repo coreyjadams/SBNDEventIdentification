@@ -42,7 +42,8 @@ class resnet_trainer(trainercore.trainercore):
         elif isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], list):
             this_data['label'] = dict()
             for key in self._config['IO'][mode]['KEYWORD_LABEL']:
-                this_data['label'][key] = self._dataloaders[mode].fetch_data(key).data()
+                hash_key = self.long_key_to_short_key(key)
+                this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
 
         return this_data
 
@@ -60,7 +61,16 @@ class resnet_trainer(trainercore.trainercore):
         elif isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], list):
             this_dims['label'] = dict()
             for key in self._config['IO'][mode]['KEYWORD_LABEL']:
-                print key
-                this_dims['label'][key] = self._dataloaders[mode].fetch_data(key).dim()
+                hash_key = self.long_key_to_short_key(key)
+                this_dims['label'][hash_key] = self._dataloaders[mode].fetch_data(key).dim()
 
         return this_dims
+
+
+    def long_key_to_short_key(self, key):
+        # This function only exists to convert things like so:
+        # main_neutrino_label -> neutrino
+        # val_chrpion_label -> chrpion
+        # etc...
+
+        return key.split('_')[1]

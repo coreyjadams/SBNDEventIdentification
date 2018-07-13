@@ -48,7 +48,7 @@ class resnetcore(networkcore):
         return
 
 
-    def _initialize_input(self, dims, label_dims=None):
+    def _initialize_input(self, dims):
         '''Initialize input parameters of the network.  Must return a dict type
 
         For exampe, paremeters of the dict can be 'image', 'label', 'weights', etc
@@ -70,7 +70,8 @@ class resnetcore(networkcore):
         })
 
 
-        if label_dims is not None:
+        if 'label' in dims:
+            label_dims = dims['label']
             if isinstance(label_dims, dict):
                 inputs['label'] = dict()
                 for key in label_dims:
@@ -104,12 +105,12 @@ class resnetcore(networkcore):
             output['prediction'] = dict()
             for key in logits.keys():
                 output['softmax'][key]    = tf.nn.softmax(logits[key])
-                output['prediction'][key] = tf.nn.argmax(logits[key], axis=-1)
+                output['prediction'][key] = tf.argmax(logits[key], axis=-1)
 
 
         else:
             output['softmax'] = tf.nn.softmax(logits)
-            output['prediction'] = tf.nn.argmax(logits, axis=-1)
+            output['prediction'] = tf.argmax(logits, axis=-1)
 
         return output
 
@@ -128,14 +129,14 @@ class resnetcore(networkcore):
 
 
             # If logits is a dictionary form, create a loss against each label name:
-            if isinstance(logits, dict):
+            if isinstance(outputs, dict):
                 losses = []
 
-                for key in logits:
+                for key in outputs:
                     losses.append(
                         tf.reduce_mean(
                             tf.nn.softmax_cross_entropy_with_logits(labels=inputs['label'][key],
-                                                                    logits=logits[key])
+                                                                    logits=outputs[key])
                         )
                     )
                     # Individual summaries:
@@ -149,7 +150,7 @@ class resnetcore(networkcore):
                 #otherwise, just one set of logits, against one label:
                 loss = tf.reduce_mean(
                     tf.nn.softmax_cross_entropy_with_logits(labels=inputs['label'],
-                                                            logits=logits))
+                                                            logits=outputs))
 
 
 
@@ -176,9 +177,8 @@ class resnetcore(networkcore):
             if isinstance(outputs['prediction'], dict):
                 accuracy = dict()
 
-                for key in logits.keys():
-
-                    correct_prediction = tf.equal(tf.argmax(inputs[key], -1),
+                for key in outputs['prediction'].keys():
+                    correct_prediction = tf.equal(tf.argmax(inputs['label'][key], -1),
                                                   outputs['prediction'][key])
                     accuracy.update({
                         key : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))

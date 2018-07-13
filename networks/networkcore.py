@@ -88,7 +88,7 @@ class networkcore(object):
         sys.stdout.write(" - Finished gradient accumulation [{0:.2}s]\n".format(time.time() - start))
 
         start = time.time()
-        trainable_loss = self._calculate_loss(self._input, self._output)
+        trainable_loss = self._calculate_loss(self._input, self._logits)
         sys.stdout.write(" - Finished loss calculation [{0:.2}s]\n".format(time.time() - start))
 
 
