@@ -3,7 +3,7 @@ import yaml
 import sys
 
 # import all of the possible trainers:
-from networks import resnet_trainer
+from networks import resnet_trainer, uresnet_trainer
 
 
 def main(params):
@@ -13,6 +13,8 @@ def main(params):
     if params['NAME'] == 'resnet' or params['NAME'] == 'resnet3d':
         trainer = resnet_trainer.resnet_trainer(params)
 
+    if params['NAME'] == 'uresnet':
+        trainer = uresnet_trainer.uresnet_trainer(params)
 
     if trainer is None:
         raise Exception("Could not configure the correct trainer")

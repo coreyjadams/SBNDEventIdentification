@@ -5,13 +5,6 @@ from networkcore import networkcore
 
 import tensorflow as tf
 
-
-# Declaring exception names:
-class ConfigurationException(Exception): pass
-class IncompleteFeedDict(Exception): pass
-
-
-
 # Main class
 class resnetcore(networkcore):
     '''Define a network model and run training

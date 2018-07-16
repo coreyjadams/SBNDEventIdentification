@@ -15,7 +15,7 @@ from resnetcore import resnetcore
 class resnet(resnetcore):
     '''Define a network model and run training
 
-    U resnet implementation
+    resnet implementation
     '''
     def __init__(self):
         '''initialization
