@@ -88,6 +88,42 @@ class uresnet(uresnetcore):
         returns a single scalar for the optimizer to use.
         '''
 
+        # To calculate the loss, we have to split the inputs
+        # again since the logits for each plane come split.
+
+
+        with tf.name_scope('cross_entropy'):
+            n_planes = self._params['NPLANES']
+            labels = tf.split(inputs['label'], n_planes*[1], -1)
+
+            self._loss_by_plane = [ [] for i in range(self._params['NPLANES']) ]
+
+            for p in xrange(n_planes):
+
+                # Unreduced loss, shape [BATCH, L, W]
+                losses = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels[p],
+                                            logits=outputs[p])
+
+                print losses
+                print inputs['weight'][p]
+
+                if self._params['BALANCE_LOSS']:
+                    losses = tf.multiply(losses, weights[p])
+
+                self._loss_by_plane[p] = tf.reduce_sum(tf.reduce_sum(losses))
+
+                # Add the loss to the summary:
+                tf.summary.scalar("Total_Loss_plane{0}".format(p), self._loss_by_plane[p])
+
+
+            self._loss = tf.reduce_sum(self._loss_by_plane)
+
+            tf.summary.scalar("Total_Loss", self._loss)
+
+
+
+        print 'here'
+
 
         # with tf.name_scope('cross_entropy'):
 
@@ -112,36 +148,36 @@ class uresnet(uresnetcore):
 
 
 
-    def _calculate_accuracy(self, inputs, outputs):
-        ''' Calculate the accuracy.
+    # def _calculate_accuracy(self, inputs, outputs):
+    #     ''' Calculate the accuracy.
 
-        '''
+    #     '''
 
-        # Compare how often the input label and the output prediction agree:
+    #     # Compare how often the input label and the output prediction agree:
 
-        with tf.name_scope('accuracy'):
+    #     with tf.name_scope('accuracy'):
 
-            if isinstance(outputs['prediction'], dict):
-                accuracy = dict()
+    #         if isinstance(outputs['prediction'], dict):
+    #             accuracy = dict()
 
-                for key in outputs['prediction'].keys():
-                    correct_prediction = tf.equal(tf.argmax(inputs['label'][key], -1),
-                                                  outputs['prediction'][key])
-                    accuracy.update({
-                        key : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-                    })
+    #             for key in outputs['prediction'].keys():
+    #                 correct_prediction = tf.equal(tf.argmax(inputs['label'][key], -1),
+    #                                               outputs['prediction'][key])
+    #                 accuracy.update({
+    #                     key : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    #                 })
 
 
-                    # Add the accuracies to the summary:
-                    tf.summary.scalar("{0}_Accuracy".format(key), accuracy[key])
+    #                 # Add the accuracies to the summary:
+    #                 tf.summary.scalar("{0}_Accuracy".format(key), accuracy[key])
 
-            else:
-                correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
-                                              outputs['prediction'])
-                accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-                tf.summary.scalar("Accuracy", accuracy)
+    #         else:
+    #             correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
+    #                                           outputs['prediction'])
+    #             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    #             tf.summary.scalar("Accuracy", accuracy)
 
-        return accuracy
+    #     return accuracy
 
     def _build_network(self, inputs, verbosity = 0):
 
