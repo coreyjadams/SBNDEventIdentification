@@ -1,0 +1,39 @@
+# network parameters
+NAME: 'uresnet'
+
+NETWORK:
+  N_INITIAL_FILTERS:  6
+  NETWORK_DEPTH:  2
+  RESIDUAL_BLOCKS_PER_LAYER: 2
+  RESIDUAL_BLOCKS_DEEPEST_LAYER: 4
+  NPLANES: 3
+  NUM_LABELS: 3
+  BALANCE_LOSS: true
+  SHARE_WEIGHTS: true
+  BATCH_NORM: true
+
+
+# training parameters:
+N_MINIBATCH: 1
+MINIBATCH_SIZE: 2
+SAVE_ITERATION: 500
+REPORT_ITERATION: 10
+SUMMARY_ITERATION: 1
+BASE_LEARNING_RATE:  0.001
+TRAINING: True
+ITERATIONS: 2
+
+# IO Parameters:
+IO:
+  TRAIN:
+    FILE: './larcv_io_config/2d/dev/lepton_seg/train_io.cfg'
+    FILLER: 'TrainIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'main_data'
+    KEYWORD_LABEL: 'main_label'
+
+
+# General parameters:
+LOGDIR: 'log/log_uresnet_2d/'
+RESTORE: False
+GPU: 0

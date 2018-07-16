@@ -1,0 +1,50 @@
+# network parameters
+NUM_LABELS: 36
+N_INITIAL_FILTERS:  5
+NETWORK_DEPTH_PRE_MERGE:  2
+NETWORK_DEPTH_POST_MERGE:  2
+RESIDUAL_BLOCKS_PER_LAYER: 2
+NPLANES: 3
+SHARE_WEIGHTS: false
+
+# training parameters:
+N_MINIBATCH: 1
+MINIBATCH_SIZE: 32
+SAVE_ITERATION: 500
+REPORT_ITERATION: 10
+SUMMARY_ITERATION: 1
+BASE_LEARNING_RATE:  0.001
+TRAINING: True
+ITERATIONS: 20000
+#BOOST_LOSSES:
+#    neutrino: 10.0
+#    proton: 1.0
+#    chrpion: 1.0
+#    ntrpion: 1.0
+
+TRAIN_CONFIG:
+    FILE: './config_2d/train_io.cfg'
+    FILLER: 'TrainIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'main_data'
+    KEYWORD_LABEL:
+      - 'main_neutrino_label'
+      - 'main_proton_label'
+      - 'main_chrpion_label'
+      - 'main_ntrpion_label'
+
+TEST_CONFIG:
+    FILE: './config_2d/test_io.cfg'
+    FILLER: 'TestIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'test_data'
+    KEYWORD_LABEL:
+      - 'test_neutrino_label'
+      - 'test_proton_label'
+      - 'test_chrpion_label'
+      - 'test_ntrpion_label'
+
+# General parameters:
+LOGDIR: 'log_resnet_523/2D'
+RESTORE: False
+GPU: 0
