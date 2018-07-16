@@ -231,7 +231,7 @@ class trainercore(object):
         time_gpu += gpu_end - gpu_start
 
         # read-in test data set if needed (TEST = true, AND it's a report/summary step)
-        (test_data, test_label) = (None,None)
+        test_data = None
         if (report_step or summary_step) and 'TEST' in self._config['IO']:
 
             # Read the next batch:
@@ -260,7 +260,7 @@ class trainercore(object):
             sys.stdout.write('Train set: ')
             self._report(numpy.mean(self._batch_metrics,axis=0),self._descr_metrics)
             if 'TEST' in self._dataloaders:
-                res,doc = self._net.run_test(self._sess, test_data, test_label)
+                res,doc = self._net.run_test(self._sess, test_data)
                 sys.stdout.write('Test set: ')
                 self._report(res,doc)
             sys.stdout.write(" -- IO Time: {0:.2}s\t GPU Time: {1:.2}s\n".format(time_io, time_gpu))
