@@ -6,7 +6,7 @@ import numpy
 
 import tensorflow as tf
 
-import resnet
+import resnet, resnet3d
 import trainercore
 
 
@@ -18,9 +18,11 @@ class resnet_trainer(trainercore.trainercore):
         if not self.check_params():
             raise Exception("Parameter check failed.")
 
+        if '3d' in config['NAME']:
+            net = resnet3d.resnet3d()
+        else:
+            net = resnet.resnet()
 
-
-        net = resnet.resnet()
         net.set_params(config['NETWORK'])
 
         self.set_network_object(net)
@@ -45,6 +47,8 @@ class resnet_trainer(trainercore.trainercore):
                 hash_key = self.long_key_to_short_key(key)
                 this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
 
+        # Here could be added code to flatten the labels into one long label
+
         return this_data
 
     def fetch_minibatch_dims(self, mode):
@@ -64,6 +68,8 @@ class resnet_trainer(trainercore.trainercore):
                 hash_key = self.long_key_to_short_key(key)
                 this_dims['label'][hash_key] = self._dataloaders[mode].fetch_data(key).dim()
 
+        # Here could be added code to flatten the dims into one long label dims
+
         return this_dims
 
 
@@ -74,3 +80,11 @@ class resnet_trainer(trainercore.trainercore):
         # etc...
 
         return key.split('_')[1]
+
+    def unpack_labels(self, long_labels):
+        pass
+
+    def pack_labels(self, neutrino_label, proton_label, chrpion_label, ntrpion_label):
+
+        # Roll up the labels into one long label:
+        pass

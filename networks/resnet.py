@@ -4,13 +4,10 @@ import time
 
 import tensorflow as tf
 
-from utils import residual_block, downsample_block, upsample_block
+from utils import residual_block, downsample_block
+
 
 from resnetcore import resnetcore
-
-# Declaring exception names:
-class ConfigurationException(Exception): pass
-class IncompleteFeedDict(Exception): pass
 
 
 
@@ -67,6 +64,15 @@ class resnet(resnetcore):
             print "Initial input shape: " + str(x.get_shape())
 
 
+
+        if self._params['SHARE_WEIGHTS']:
+            sharing = True
+        else:
+            sharing = False
+
+        if verbosity > 0:
+            print "Weight sharing across planes is: " + str(sharing)
+
         # We break up the intial filters into parallel U ResNets
         # The filters are concatenated at some point, and progress together
 
@@ -87,14 +93,23 @@ class resnet(resnetcore):
 
         # Initial convolution to get to the correct number of filters:
         for p in range(len(x)):
+            name = "Conv2DInitial"
+            reuse = False
+            if not sharing:
+                name += "_plane{0}".format(p)
+            if sharing and p != 0:
+                reuse = True
+
+
             x[p] = tf.layers.conv2d(x[p], self._params['N_INITIAL_FILTERS'],
                                     kernel_size=[7, 7],
                                     strides=[2, 2],
                                     padding='same',
                                     use_bias=False,
                                     trainable=self._params['TRAINING'],
-                                    name="Conv2DInitial_plane{0}".format(p),
-                                    reuse=None)
+                                    kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.1),
+                                    name=name,
+                                    reuse=reuse)
 
             # ReLU:
             x[p] = tf.nn.relu(x[p])
@@ -115,13 +130,29 @@ class resnet(resnetcore):
             for i in xrange(self._params['NETWORK_DEPTH_PRE_MERGE']):
 
                 for j in xrange(self._params['RESIDUAL_BLOCKS_PER_LAYER']):
+                    name = "resblock_down_{0}_{1}".format(i,j)
+                    reuse = False
+                    if not sharing:
+                        name += "_plane{0}".format(p)
+                    if sharing and p != 0:
+                        reuse = True
+
                     x[p] = residual_block(x[p], self._params['TRAINING'],
                                           batch_norm=True,
-                                          name="resblock_down_plane{0}_{1}_{2}".format(p, i, j))
+                                          name=name,
+                                          reuse=reuse)
+
+                name = "downsample_{0}".format(i)
+                reuse = False
+                if not sharing:
+                    name += "_plane{0}".format(p)
+                if sharing and p != 0:
+                    reuse = True
 
                 x[p] = downsample_block(x[p], self._params['TRAINING'],
                                         batch_norm=True,
-                                        name="downsample_plane{0}_{1}".format(p,i))
+                                        name=name,
+                                        reuse=reuse)
                 if verbosity > 1:
                     print "Plane {p}, layer {i}: x[{p}].get_shape(): {s}".format(
                         p=p, i=i, s=x[p].get_shape())
@@ -179,6 +210,7 @@ class resnet(resnetcore):
                                           activation=None,
                                           use_bias=False,
                                           trainable=self._params['TRAINING'],
+                                          kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.1),
                                           name="BottleneckConv2D_{0}".format(label_name))
 
                 if verbosity > 1:
@@ -224,6 +256,7 @@ class resnet(resnetcore):
                                       activation=None,
                                       use_bias=False,
                                       trainable=self._params['TRAINING'],
+                                      kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.1),
                                       name="BottleneckConv2D")
 
             if verbosity > 1:
@@ -246,7 +279,7 @@ class resnet(resnetcore):
 
             # Reshape to the right shape for logits:
             this_x = tf.reshape(this_x, [tf.shape(this_x)[0], num_labels],
-                     name="global_pooling_reshape_{0}".format(label_name))
+                     name="global_pooling_reshape")
 
             if verbosity > 1:
                 print "Final shape: " + str(this_x.get_shape())

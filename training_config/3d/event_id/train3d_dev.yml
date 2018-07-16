@@ -1,29 +1,26 @@
 # network parameters
-NAME: 'resnet'
+NAME: 'resnet3d'
 
 NETWORK:
   N_INITIAL_FILTERS:  6
-  NETWORK_DEPTH_PRE_MERGE:  1
-  NETWORK_DEPTH_POST_MERGE:  1
+  NETWORK_DEPTH:  1
   RESIDUAL_BLOCKS_PER_LAYER: 2
-  NPLANES: 3
-  SHARE_WEIGHTS: true
 
 
 # training parameters:
 N_MINIBATCH: 1
-MINIBATCH_SIZE: 2
+MINIBATCH_SIZE: 1
 SAVE_ITERATION: 500
 REPORT_ITERATION: 10
 SUMMARY_ITERATION: 1
 BASE_LEARNING_RATE:  0.001
 TRAINING: True
-ITERATIONS: 2
+ITERATIONS: 50
 
 # IO Parameters:
 IO:
   TRAIN:
-    FILE: './larcv_io_config/2d/dev/event_id/train_io.cfg'
+    FILE: './larcv_io_config/3d/dev/event_id/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'main_data'
@@ -35,6 +32,8 @@ IO:
 
 
 # General parameters:
-LOGDIR: 'log/log_resnet_2d/'
+LOGDIR: 'log/log_resnet_3d/'
 RESTORE: False
 GPU: 0
+
+
