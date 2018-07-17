@@ -241,6 +241,8 @@ class networkcore(object):
 
         ops = [self._accum_gradients]
         doc = ['']
+
+
         # classification
         ops += [self._loss]
         doc += ['loss']
@@ -253,7 +255,9 @@ class networkcore(object):
             ops += [self._accuracy]
             doc += ["acc. "]
 
-        return sess.run(ops, feed_dict = feed_dict ), doc
+        res = sess.run(ops, feed_dict = feed_dict )
+
+        return res, doc
 
 
     def run_test(self,sess, inputs):

@@ -135,6 +135,8 @@ class uresnet(uresnetcore):
 
         # Accuracy calculations:
         with tf.name_scope('accuracy'):
+
+
             predicted_labels = outputs['prediction']
             n_planes = self._params['NPLANES']
             labels = tf.split(inputs['label'], n_planes*[1], -1)
@@ -171,6 +173,11 @@ class uresnet(uresnetcore):
             # Add the accuracies to the summary:
             tf.summary.scalar("All_Plane_Total_Accuracy", all_plane_accuracy)
             tf.summary.scalar("All_Plane_Non_Background_Accuracy", all_plane_non_bkg_accuracy)
+
+            accuracy = dict()
+            accuracy['total_acc'] = all_plane_accuracy
+            accuracy['non_bkg_acc'] = all_plane_non_bkg_accuracy
+            return accuracy
 
 
     def _make_snapshots(self, inputs, outputs):
