@@ -294,5 +294,5 @@ class networkcore(object):
     def global_step(self, sess):
         return sess.run(self._global_step)
 
-    def _build_network(self, input_placeholder, label_dims):
+    def _build_network(self, inputs):
         raise NotImplementedError("_build_network must be implemented by the child class")

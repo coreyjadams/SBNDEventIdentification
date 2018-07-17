@@ -6,7 +6,7 @@ import numpy
 
 import tensorflow as tf
 
-import uresnet
+import uresnet, uresnet3d
 # import uresnet, uresnet3d
 import trainercore
 
