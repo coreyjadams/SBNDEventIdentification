@@ -71,7 +71,7 @@ class uresnet(uresnetcore):
 
         for p in range(self._params['NPLANES']):
             this_logits = logits[p]
-            output['softmax'].append(tf.nn.softmax(this_logits, axis=-1))
+            output['softmax'].append(tf.nn.softmax(this_logits))
             output['prediction'].append(tf.argmax(this_logits, axis=-1))
 
         return output
