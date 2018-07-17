@@ -26,13 +26,13 @@ ITERATIONS: 2
 # IO Parameters:
 IO:
   TRAIN:
-    FILE: './larcv_io_config/2d/lepton_seg/train_io.cfg'
+    FILE: './larcv_io_config/2d/full/lepton_seg/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'main_data'
     KEYWORD_LABEL: 'main_label'
   TEST:
-    FILE: './larcv_io_config/2d/lepton_seg/test_io.cfg'
+    FILE: './larcv_io_config/2d/full/lepton_seg/test_io.cfg'
     FILLER: 'TestIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'test_data'
