@@ -47,7 +47,55 @@ class resnet_trainer(trainercore.trainercore):
                 hash_key = self.long_key_to_short_key(key)
                 this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
 
-        # Here could be added code to flatten the labels into one long label
+	# code to flatten labels into one-hot-coded vector
+	# this code is specific to the data we're using right now (sorry) 
+	
+	dims = []
+	for key in this_data['label']:
+		dims = numpy.append(dims, len(this_data['label'][key][0]))
+	dims = [int(x) for x in dims]
+	
+	# dims = [3, 2, 2, 3]
+
+	one_hot = [numpy.zeros(dims), numpy.zeros(dims)]
+
+	# one_hot = 
+	# 	([[[[0., 0., 0.],
+	#          [0., 0., 0.]],
+	# 
+	#         [[0., 0., 0.],
+	#          [0., 0., 0.]]],
+	# 
+	# 
+	#        [[[0., 0., 0.],
+	#          [0., 0., 0.]],
+	# 
+	#         [[0., 0., 0.],
+	#          [0., 0., 0.]]],
+	# 
+	# 
+	#        [[[0., 0., 0.],
+	#          [0., 0., 0.]],
+	# 
+	#         [[0., 0., 0.],
+	#          [0., 0., 0.]]]])
+
+
+	for idx in range(len(one_hot)):
+		
+		temp = [0,0,0,0]
+		for i, key in enumerate(this_data['label']):
+			for j, x in enumerate(this_data['label'][key][idx]):
+				if x:
+					temp[i] = j
+
+		[i,j,n,x] = temp
+
+		one_hot[idx][i,j,n,x] = 1
+
+		one_hot[idx] = numpy.ndarray.flatten(one_hot[idx])
+
+	this_data['one_hot'] = one_hot
 
         return this_data
 
