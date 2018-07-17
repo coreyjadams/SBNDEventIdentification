@@ -221,10 +221,10 @@ class networkcore(object):
                 else:
                     fd.update({self._input[key] : inputs[key]})
 
-        for key in fd:
-            print key
-            print fd[key].shape
-            print ''
+        # for key in fd:
+        #     print key
+        #     print fd[key].shape
+        #     print ''
 
         return fd
 
