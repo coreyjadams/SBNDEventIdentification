@@ -74,15 +74,13 @@ class uresnet(uresnetcore):
             output['softmax'].append(tf.nn.softmax(this_logits, axis=-1))
             output['prediction'].append(tf.argmax(this_logits, axis=-1))
 
-        print output
-
         return output
 
 
 
 
 
-    def _calculate_loss(self, inputs, outputs):
+    def _calculate_loss(self, inputs, logits):
         ''' Calculate the loss.
 
         returns a single scalar for the optimizer to use.
@@ -95,89 +93,83 @@ class uresnet(uresnetcore):
         with tf.name_scope('cross_entropy'):
             n_planes = self._params['NPLANES']
             labels = tf.split(inputs['label'], n_planes*[1], -1)
+            labels = [tf.squeeze(label, axis=-1) for label in labels]
 
-            self._loss_by_plane = [ [] for i in range(self._params['NPLANES']) ]
+            if self._params['BALANCE_LOSS']:
+                weights = tf.split(inputs['weight'], n_planes*[1], -1)
+                weights = [tf.squeeze(weight, axis=-1) for weight in weights]
+
+
+            loss_by_plane = [ [] for i in range(self._params['NPLANES']) ]
 
             for p in xrange(n_planes):
 
                 # Unreduced loss, shape [BATCH, L, W]
                 losses = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels[p],
-                                            logits=outputs[p])
+                                            logits=logits[p])
 
                 print losses
-                print inputs['weight'][p]
 
                 if self._params['BALANCE_LOSS']:
                     losses = tf.multiply(losses, weights[p])
 
-                self._loss_by_plane[p] = tf.reduce_sum(tf.reduce_sum(losses))
+                loss_by_plane[p] = tf.reduce_sum(tf.reduce_sum(losses))
 
                 # Add the loss to the summary:
-                tf.summary.scalar("Total_Loss_plane{0}".format(p), self._loss_by_plane[p])
+                tf.summary.scalar("Total_Loss_plane{0}".format(p), loss_by_plane[p])
 
 
-            self._loss = tf.reduce_sum(self._loss_by_plane)
+            loss = tf.reduce_sum(loss_by_plane)
 
-            tf.summary.scalar("Total_Loss", self._loss)
+            tf.summary.scalar("Total_Loss", loss)
 
-
-
-        print 'here'
-
-
-        # with tf.name_scope('cross_entropy'):
-
-        #     else:
-        #         #otherwise, just one set of logits, against one label:
-        #         loss = tf.reduce_mean(
-        #             tf.nn.softmax_cross_entropy_with_logits(labels=inputs['label'],
-        #                                                     logits=outputs))
+        return loss
 
 
 
-        #     # If desired, add weight regularization loss:
-        #     if 'REGULARIZE_WEIGHTS' in self._params:
-        #         reg_loss = tf.losses.get_regularization_loss()
-        #         loss += reg_loss
+    def _calculate_accuracy(self, inputs, outputs):
+        ''' Calculate the accuracy.
+
+        '''
+
+        # Compare how often the input label and the output prediction agree:
+
+        # Accuracy calculations:
+        with tf.name_scope('accuracy'):
+            predicted_labels = outputs['prediction']
+            n_planes = self._params['NPLANES']
+            labels = tf.split(inputs['label'], n_planes*[1], -1)
+
+            total_accuracy   = [ [] for i in range(n_planes) ]
+            non_bkg_accuracy = [ [] for i in range(n_planes) ]
+
+            for p in xrange(len(predicted_labels)):
+                total_accuracy[p] = tf.reduce_mean(
+                    tf.cast(tf.equal(predicted_labels[p],
+                        labels[p]), tf.float32))
+                # Find the non zero labels:
+                non_zero_indices = tf.not_equal(labels[p], tf.constant(0, labels[p].dtype))
+
+                non_zero_logits = tf.boolean_mask(predicted_labels[p], non_zero_indices)
+                non_zero_labels = tf.boolean_mask(labels[p], non_zero_indices)
+
+                non_bkg_accuracy[p] = tf.reduce_mean(tf.cast(tf.equal(non_zero_logits, non_zero_labels), tf.float32))
+
+                # Add the accuracies to the summary:
+                tf.summary.scalar("Total_Accuracy_plane{0}".format(p),
+                    total_accuracy[p])
+                tf.summary.scalar("Non_Background_Accuracy_plane{0}".format(p),
+                    non_bkg_accuracy[p])
 
 
-        #     # Total summary:
-        #     tf.summary.scalar("Total Loss",loss)
+            #Compute the total accuracy and non background accuracy for all planes:
+            all_plane_accuracy = tf.reduce_mean(total_accuracy)
+            all_plane_non_bkg_accuracy = tf.reduce_mean(non_bkg_accuracy)
 
-        #     return loss
+            # Add the accuracies to the summary:
+            tf.summary.scalar("All_Plane_Total_Accuracy", all_plane_accuracy)
+            tf.summary.scalar("All_Plane_Non_Background_Accuracy", all_plane_non_bkg_accuracy)
 
-
-
-    # def _calculate_accuracy(self, inputs, outputs):
-    #     ''' Calculate the accuracy.
-
-    #     '''
-
-    #     # Compare how often the input label and the output prediction agree:
-
-    #     with tf.name_scope('accuracy'):
-
-    #         if isinstance(outputs['prediction'], dict):
-    #             accuracy = dict()
-
-    #             for key in outputs['prediction'].keys():
-    #                 correct_prediction = tf.equal(tf.argmax(inputs['label'][key], -1),
-    #                                               outputs['prediction'][key])
-    #                 accuracy.update({
-    #                     key : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    #                 })
-
-
-    #                 # Add the accuracies to the summary:
-    #                 tf.summary.scalar("{0}_Accuracy".format(key), accuracy[key])
-
-    #         else:
-    #             correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
-    #                                           outputs['prediction'])
-    #             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    #             tf.summary.scalar("Accuracy", accuracy)
-
-    #     return accuracy
 
     def _build_network(self, inputs, verbosity = 0):
 
