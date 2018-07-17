@@ -272,7 +272,7 @@ class trainercore(object):
             # Run summary
             self._writer.add_summary(self._net.make_summary(self._sess, minibatch_data),
                                      self._iteration)
-            if 'TEST' in self._config:
+            if 'TEST' in self._config['IO']:
                 self._writer_test.add_summary(self._net.make_summary(self._sess, test_data),
                                               self._iteration)
 
