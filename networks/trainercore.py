@@ -206,8 +206,12 @@ class trainercore(object):
             time_io += io_end - io_start
             # compute gradients
             gpu_start = time.time()
+
+
             res,doc = self._net.accum_gradients(sess   = self._sess,
                                                 inputs = minibatch_data)
+
+
             gpu_end  = time.time()
             time_gpu += gpu_end - gpu_start
 
