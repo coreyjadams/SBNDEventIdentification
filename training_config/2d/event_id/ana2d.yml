@@ -33,4 +33,3 @@ ANA_CONFIG:
 # General parameters:
 LOGDIR: '/home/mbernstein/SBNDEventIdentification/log_resnet_523/2D'
 RESTORE: True
-GPU: 0

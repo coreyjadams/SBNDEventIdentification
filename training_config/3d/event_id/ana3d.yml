@@ -39,4 +39,3 @@ TEST_CONFIG:
 # General parameters:
 LOGDIR: 'log_resnet_523/3D/'
 RESTORE: True
-GPU: 0
