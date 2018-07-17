@@ -9,7 +9,6 @@ NETWORK:
   NPLANES: 3
   SHARE_WEIGHTS: true
 
-
 # training parameters:
 N_MINIBATCH: 1
 MINIBATCH_SIZE: 2
@@ -32,7 +31,6 @@ IO:
       - 'main_proton_label'
       - 'main_chrpion_label'
       - 'main_ntrpion_label'
-
 
 # General parameters:
 LOGDIR: 'log/log_resnet_2d/'

@@ -108,7 +108,6 @@ class uresnet(uresnetcore):
                 losses = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels[p],
                                             logits=logits[p])
 
-                print losses
 
                 if self._params['BALANCE_LOSS']:
                     losses = tf.multiply(losses, weights[p])
@@ -139,11 +138,14 @@ class uresnet(uresnetcore):
             predicted_labels = outputs['prediction']
             n_planes = self._params['NPLANES']
             labels = tf.split(inputs['label'], n_planes*[1], -1)
+            labels = [tf.squeeze(label, axis=-1) for label in labels]
 
             total_accuracy   = [ [] for i in range(n_planes) ]
             non_bkg_accuracy = [ [] for i in range(n_planes) ]
 
-            for p in xrange(len(predicted_labels)):
+
+            for p in xrange(n_planes):
+
                 total_accuracy[p] = tf.reduce_mean(
                     tf.cast(tf.equal(predicted_labels[p],
                         labels[p]), tf.float32))
@@ -169,6 +171,30 @@ class uresnet(uresnetcore):
             # Add the accuracies to the summary:
             tf.summary.scalar("All_Plane_Total_Accuracy", all_plane_accuracy)
             tf.summary.scalar("All_Plane_Non_Background_Accuracy", all_plane_non_bkg_accuracy)
+
+
+    def _make_snapshots(self, inputs, outputs):
+
+        # Save images of the inputs and outputs:
+
+        # Snapshot the input images
+
+        with tf.name_scope('snapshot'):
+            predicted_labels = outputs['prediction']
+            n_planes = self._params['NPLANES']
+            labels = tf.split(inputs['label'], n_planes*[1], -1)
+            labels = [tf.squeeze(label, axis=-1) for label in labels]
+
+            for p in xrange(n_planes):
+
+                target_img = tf.cast(tf.reshape(labels[p], labels[p].get_shape().as_list() + [1,]), tf.float32)
+                target_img = tf.image.grayscale_to_rgb(target_img)
+                tf.summary.image('labels_plane{0}'.format(p), target_img,max_outputs=10)
+
+                output_img = tf.cast(tf.reshape(predicted_labels[p], labels[p].get_shape().as_list() + [1,]), tf.float32)
+                output_img = tf.image.grayscale_to_rgb(output_img)
+                tf.summary.image('logits_plane{0}'.format(p), output_img,max_outputs=10)
+
 
 
     def _build_network(self, inputs, verbosity = 0):

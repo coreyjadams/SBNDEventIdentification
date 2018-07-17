@@ -105,6 +105,7 @@ class networkcore(object):
 
         # Merge the summaries:
         start = time.time()
+        self._make_snapshots(self._input, self._output)
         self._merged_summary = tf.summary.merge_all()
         sys.stdout.write(" - Finished snapshotting [{0:.2}s]\n".format(time.time() - start))
 
@@ -165,6 +166,12 @@ class networkcore(object):
         raise NotImplementedError("Must implement _create_softmax")
 
 
+    def _make_snapshot(self, inputs, outputs):
+        '''Create snapshots of inputs or outputs, as desired.
+        This function doesn't raise a NotImplementedError, since it's not
+        strictly necessary.
+        '''
+        pass
 
     def _calculate_loss(self, inputs, outputs):
         ''' Calculate the loss.
@@ -213,6 +220,11 @@ class networkcore(object):
                         fd.update({self._input[key][secondard_key] : inputs[key][secondard_key]})
                 else:
                     fd.update({self._input[key] : inputs[key]})
+
+        for key in fd:
+            print key
+            print fd[key].shape
+            print ''
 
         return fd
 

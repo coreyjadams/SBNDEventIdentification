@@ -189,9 +189,6 @@ class trainercore(object):
             minibatch_data = self.fetch_minibatch_data('TRAIN')
             minibatch_dims = self.fetch_minibatch_dims('TRAIN')
 
-            # reshape:
-            minibatch_data['image'] = numpy.reshape(minibatch_data['image'],minibatch_dims['image'])
-
             # Reshape labels by dict entry, if needed, or all at once:
             if isinstance(minibatch_data['label'], dict):
                 for key in minibatch_data['label'].keys():
@@ -200,6 +197,10 @@ class trainercore(object):
             else:
                 minibatch_data['label'] = numpy.reshape(minibatch_data['label'], minibatch_dims['label'])
 
+            # Reshape any other needed objects:
+            for key in minibatch_data.keys():
+                if key != 'label':
+                    minibatch_data[key] = numpy.reshape(minibatch_data[key], minibatch_dims[key])
 
             io_end = time.time()
             time_io += io_end - io_start
@@ -241,9 +242,6 @@ class trainercore(object):
             test_data = self.fetch_minibatch_data('TEST')
             test_dims = self.fetch_minibatch_dims('TEST')
 
-            # reshape:
-            test_data['image'] = numpy.reshape(test_data['image'],test_dims['image'])
-
             # Reshape labels by dict entry, if needed, or all at once:
             if isinstance(test_data['label'], dict):
                 for key in test_data['label'].keys():
@@ -251,6 +249,10 @@ class trainercore(object):
                         test_data['label'][key], test_dims['label'][key])
             else:
                 test_data['label'] = numpy.reshape(test_data['label'], test_dims['label'])
+            # Reshape any other needed objects:
+            for key in test_data.keys():
+                if key != 'label':
+                    test_data[key] = numpy.reshape(test_data[key], test_dims[key])
 
 
 

@@ -44,7 +44,7 @@ class uresnet_trainer(trainercore.trainercore):
 
         # If the weights for each pixel are to be normalized, compute the weights too:
         if self._config['NETWORK']['BALANCE_LOSS']:
-            this_data['weight'] = compute_weights(this_data['image'])
+            this_data['weight'] = self.compute_weights(this_data['image'])
 
 
         return this_data
@@ -62,7 +62,6 @@ class uresnet_trainer(trainercore.trainercore):
         # If the weights for each pixel are to be normalized, compute the weights too:
         if self._config['NETWORK']['BALANCE_LOSS']:
             this_dims['weight'] = this_dims['image']
-
 
         return this_dims
 
