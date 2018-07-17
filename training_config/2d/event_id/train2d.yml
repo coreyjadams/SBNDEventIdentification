@@ -1,29 +1,36 @@
 # network parameters
-NUM_LABELS: 36
-N_INITIAL_FILTERS:  5
-NETWORK_DEPTH_PRE_MERGE:  2
-NETWORK_DEPTH_POST_MERGE:  2
-RESIDUAL_BLOCKS_PER_LAYER: 2
-NPLANES: 3
-SHARE_WEIGHTS: false
+
+NAME: 'resnet'
+
+NETWORK:
+#  NUM_LABELS: 36
+  N_INITIAL_FILTERS:  6
+  NETWORK_DEPTH_PRE_MERGE:  1
+  NETWORK_DEPTH_POST_MERGE:  1
+  RESIDUAL_BLOCKS_PER_LAYER: 2
+  NPLANES: 3
+  SHARE_WEIGHTS: true
 
 # training parameters:
 N_MINIBATCH: 1
-MINIBATCH_SIZE: 32
+MINIBATCH_SIZE: 2
 SAVE_ITERATION: 500
 REPORT_ITERATION: 10
 SUMMARY_ITERATION: 1
 BASE_LEARNING_RATE:  0.001
 TRAINING: True
-ITERATIONS: 20000
+ITERATIONS: 10001
+
 #BOOST_LOSSES:
 #    neutrino: 10.0
 #    proton: 1.0
 #    chrpion: 1.0
 #    ntrpion: 1.0
 
-TRAIN_CONFIG:
-    FILE: './config_2d/train_io.cfg'
+# IO paramters:
+IO:
+  TRAIN:
+    FILE: '/home/mbernstein/SBNDEventIdentification/larcv_io_config/2d/full/event_id/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'main_data'
@@ -33,8 +40,8 @@ TRAIN_CONFIG:
       - 'main_chrpion_label'
       - 'main_ntrpion_label'
 
-TEST_CONFIG:
-    FILE: './config_2d/test_io.cfg'
+  TEST:
+    FILE: '/home/mbernstein/SBNDEventIdentification/larcv_io_config/2d/full/event_id/test_io.cfg'
     FILLER: 'TestIO'
     VERBOSITY: 3
     KEYWORD_DATA:  'test_data'
@@ -45,6 +52,6 @@ TEST_CONFIG:
       - 'test_ntrpion_label'
 
 # General parameters:
-LOGDIR: 'log_resnet_523/2D'
+LOGDIR: 'log/log_resnet_716/2d_run1'
 RESTORE: False
 GPU: 0
