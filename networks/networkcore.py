@@ -166,7 +166,7 @@ class networkcore(object):
         raise NotImplementedError("Must implement _create_softmax")
 
 
-    def _make_snapshot(self, inputs, outputs):
+    def _make_snapshots(self, inputs, outputs):
         '''Create snapshots of inputs or outputs, as desired.
         This function doesn't raise a NotImplementedError, since it's not
         strictly necessary.
