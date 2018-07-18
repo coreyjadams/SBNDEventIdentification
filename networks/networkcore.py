@@ -218,7 +218,7 @@ class networkcore(object):
                 if isinstance(inputs[key], dict):
                     for secondard_key in inputs[key].keys():
                         fd.update({self._input[key][secondard_key] : inputs[key][secondard_key]})
-                elif key != 'one_hot':
+                else:
                     fd.update({self._input[key] : inputs[key]})
 
         # for key in fd:
