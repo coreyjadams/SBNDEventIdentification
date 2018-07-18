@@ -69,13 +69,14 @@ class uresnet_trainer(trainercore.trainercore):
 
 
 
-    def compute_weights(self, labels, boost_labels = None):
+    def compute_weights(self, labels):
         # Take the labels, and compute the per-label weight
 
         # Prepare output weights:
 
         weights = numpy.zeros(labels.shape)
 
+        print "entering compute weights, batch_size: " + str(len(labels))
 
         i = 0
         for batch in labels:
@@ -85,13 +86,17 @@ class uresnet_trainer(trainercore.trainercore):
             n_pixels = numpy.sum(counts)
             for value, count in zip(values, counts):
                 weight = 1.0*(n_pixels - count) / n_pixels
-                if boost_labels is not None and value in boost_labels.keys():
-                    weight *= boost_labels[value]
+                print "  B{i}, L{l}, weight: ".format(i=i, l=value) + str(weight)
                 mask = labels[i] == value
                 weights[i, mask] += weight
 
             # Normalize the weights to sum to 1 for each event:
-            weights[i] *= 1. / numpy.sum(weights[i])
+            s =  numpy.sum(weights[i])
+            if s < 0.001:
+                weights[i] *= 0.0
+                weights[i] += 1.0
+            else:
+                weights[i] *= 1. / s
             i += 1
 
 
