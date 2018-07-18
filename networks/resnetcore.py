@@ -72,7 +72,7 @@ class resnetcore(networkcore):
                         key : tf.placeholder(tf.int64, label_dims[key], name="label_{}".format(key))
                     })
             else:
-                inputs['label'] =  tf.placeholder(tf.int64, label_dims, name="label".format(key))
+                inputs['label'] =  tf.placeholder(tf.int64, label_dims, name="label")#.format(key))
 
         return inputs
 

@@ -46,4 +46,3 @@ IO:
 # General parameters:
 LOGDIR: 'log/log_resnet_716/3d_run1'
 RESTORE: False
-GPU: 0

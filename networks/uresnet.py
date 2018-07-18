@@ -120,6 +120,12 @@ class uresnet(uresnetcore):
 
             loss = tf.reduce_sum(loss_by_plane)
 
+
+            # If desired, add weight regularization loss:
+            if 'REGULARIZE_WEIGHTS' in self._params:
+                reg_loss = tf.losses.get_regularization_loss()
+                loss += reg_loss
+
             tf.summary.scalar("Total_Loss", loss)
 
         return loss

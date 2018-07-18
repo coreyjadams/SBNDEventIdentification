@@ -35,4 +35,3 @@ IO:
 # General parameters:
 LOGDIR: 'log/log_resnet_2d/'
 RESTORE: False
-GPU: 0

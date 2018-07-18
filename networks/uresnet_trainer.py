@@ -6,7 +6,7 @@ import numpy
 
 import tensorflow as tf
 
-import uresnet
+import uresnet, uresnet3d
 # import uresnet, uresnet3d
 import trainercore
 
@@ -44,7 +44,9 @@ class uresnet_trainer(trainercore.trainercore):
 
         # If the weights for each pixel are to be normalized, compute the weights too:
         if self._config['NETWORK']['BALANCE_LOSS']:
-            this_data['weight'] = self.compute_weights(this_data['image'])
+            this_data['weight'] = self.compute_weights(this_data['label'])
+
+        self._dataloaders[mode].next()
 
 
         return this_data
@@ -71,7 +73,9 @@ class uresnet_trainer(trainercore.trainercore):
         # Take the labels, and compute the per-label weight
 
         # Prepare output weights:
+
         weights = numpy.zeros(labels.shape)
+
 
         i = 0
         for batch in labels:

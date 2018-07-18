@@ -123,8 +123,14 @@ class trainercore(object):
                 self._output = larcv.IOManager(self._config['IO'][mode]['OUTPUT'])
                 self._output.initialize()
 
-
-
+            if 'PROFILE_IO' in self._config['IO'][mode] and self._config['IO'][mode]['PROFILE_IO']:
+                start = time.time()
+                N = 5
+                for i in range(5):
+                    self._dataloaders[mode].next()
+                    _ = self.fetch_minibatch_data(mode)
+                end = time.time()
+                sys.stdout.write("Time to read {N} batches of data: ".format(N=N) + str(end - start) + "\n")
 
         # Net construction:
         start = time.time()
@@ -199,7 +205,7 @@ class trainercore(object):
 
             # Reshape any other needed objects:
             for key in minibatch_data.keys():
-                if key != 'label':
+                if 'label' not in key:
                     minibatch_data[key] = numpy.reshape(minibatch_data[key], minibatch_dims[key])
 
             io_end = time.time()
@@ -255,7 +261,7 @@ class trainercore(object):
                 test_data['label'] = numpy.reshape(test_data['label'], test_dims['label'])
             # Reshape any other needed objects:
             for key in test_data.keys():
-                if key != 'label':
+                if 'label' not in key:
                     test_data[key] = numpy.reshape(test_data[key], test_dims[key])
 
 
