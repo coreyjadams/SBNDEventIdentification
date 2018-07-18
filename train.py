@@ -13,7 +13,7 @@ def main(params):
     if params['NAME'] == 'resnet' or params['NAME'] == 'resnet3d':
         trainer = resnet_trainer.resnet_trainer(params)
 
-    if params['NAME'] == 'uresnet':
+    if params['NAME'] == 'uresnet' or params['NAME'] == 'uresnet3d':
         trainer = uresnet_trainer.uresnet_trainer(params)
 
     if trainer is None:

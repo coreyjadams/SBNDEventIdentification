@@ -80,17 +80,20 @@ class uresnet3d(uresnetcore):
         returns a single scalar for the optimizer to use.
         '''
 
+
         with tf.name_scope('cross_entropy'):
+            label = tf.squeeze(inputs['label'], axis=-1)
 
-            loss = tf.nn.softmax_cross_entropy_with_logits(labels=inputs['label'],
-                                                           logits=outputs)
 
-            print loss.get_shape()
+            loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=label,
+                                                                  logits=outputs)
+
 
             if self._params['BALANCE_LOSS']:
                 loss = tf.multiply(loss, inputs['weight'])
 
             loss = tf.reduce_sum(loss)
+
 
             # If desired, add weight regularization loss:
             if 'REGULARIZE_WEIGHTS' in self._params:
@@ -205,6 +208,9 @@ class uresnet3d(uresnetcore):
             # How many filters to return from upsampling?
             n_filters = network_filters[-1].get_shape().as_list()[-1]
 
+            if verbosity > 1:
+                print "Layer {i}: x.get_shape(): {s}".format(
+                    i=i, s=x.get_shape())
 
             name = "upsample"
             name += "_{0}".format(i)
@@ -261,15 +267,18 @@ class uresnet3d(uresnetcore):
         # At this point, we ought to have a network that has the same shape as the initial input
         #, but with more filters.
 
-        x = tf.layers.conv2d(x,
+        x = tf.layers.conv3d(x,
                              self._params['NUM_LABELS'],
-                             kernel_size=[1,1],
-                             strides=[1, 1],
+                             kernel_size=[1,1,1],
+                             strides=[1,1,1],
                              padding='same',
                              activation=None,
                              use_bias=False,
                              trainable=self._params['TRAINING'],
                              name=name)
+
+        if verbosity > 0:
+            print "Final output shape: " + str(x.get_shape())
 
         return x
 
