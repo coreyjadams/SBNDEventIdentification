@@ -115,7 +115,6 @@ class trainercore(object):
             if mode not in ['TRAIN', 'TEST', 'ANA']:
                 raise Exception("Unknown mode {} requested, must be in ['TRAIN', 'TEST', 'ANA']".format(mode))
 
-            print mode
             self.prepare_manager(mode)
 
             if mode == 'ANA' and 'OUTPUT' in self._config['IO'][mode]:
@@ -179,7 +178,7 @@ class trainercore(object):
         self._iteration = self._net.global_step(self._sess)
         report_step  = self._iteration % self._config['REPORT_ITERATION'] == 0
         summary_step = 'SUMMARY_ITERATION' in self._config and (self._iteration % self._config['SUMMARY_ITERATION']) == 0
-        checkpt_step = 'SAVE_ITERATION' in self._config and (self._iteration % self._config['SAVE_ITERATION']) == 0
+        checkpt_step = 'SAVE_ITERATION' in self._config and (self._iteration % self._config['SAVE_ITERATION']) == 0 and self._iteration != 0
 
         # We keep track of time spent on data IO and GPU calculations
         time_io   = 0.0
