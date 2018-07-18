@@ -26,6 +26,7 @@ ITERATIONS: 25000
 # IO Parameters:
 IO:
   TRAIN:
+    PROFILE_IO: True
     FILE: './larcv_io_config/2d/full/lepton_seg/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3

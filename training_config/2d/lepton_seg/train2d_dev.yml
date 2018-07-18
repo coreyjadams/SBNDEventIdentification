@@ -15,7 +15,7 @@ NETWORK:
 
 # training parameters:
 N_MINIBATCH: 1
-MINIBATCH_SIZE: 2
+MINIBATCH_SIZE: 1
 SAVE_ITERATION: 500
 REPORT_ITERATION: 1
 SUMMARY_ITERATION: 1
@@ -26,6 +26,7 @@ ITERATIONS: 2
 # IO Parameters:
 IO:
   TRAIN:
+    PROFILE_IO: True
     FILE: './larcv_io_config/2d/dev/lepton_seg/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3
