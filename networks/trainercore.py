@@ -123,8 +123,14 @@ class trainercore(object):
                 self._output = larcv.IOManager(self._config['IO'][mode]['OUTPUT'])
                 self._output.initialize()
 
-
-
+            if 'PROFILE_IO' in self._config['IO'][mode] and self._config['IO'][mode]['PROFILE_IO']:
+                start = time.time()
+                N = 5
+                for i in range(5):
+                    self._dataloaders[mode].next()
+                    _ = self.fetch_minibatch_data(mode)
+                end = time.time()
+                sys.stdout.write("Time to read {N} batches of data: ".format(N=N) + str(end - start) + "\n")
 
         # Net construction:
         start = time.time()
