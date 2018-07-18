@@ -19,9 +19,12 @@ BASE_LEARNING_RATE:  0.001
 TRAINING: True
 ITERATIONS: 2
 
+ONE_HOT: TRUE
+
 # IO Parameters:
 IO:
   TRAIN:
+    PROFILE_IO: true
     FILE: './larcv_io_config/2d/dev/event_id/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3
