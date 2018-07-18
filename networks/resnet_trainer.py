@@ -9,6 +9,7 @@ import tensorflow as tf
 import resnet, resnet3d
 import trainercore
 
+onehot = True
 
 class resnet_trainer(trainercore.trainercore):
 
@@ -36,68 +37,41 @@ class resnet_trainer(trainercore.trainercore):
         this_data = dict()
         this_data['image'] = self._dataloaders[mode].fetch_data(
             self._config['IO'][mode]['KEYWORD_DATA']).data()
-
-        # Figure out if the label is a dict or not:
-        if isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], str):
-            this_data['label'] = self._dataloaders[mode].fetch_data(
-                self._config['IO'][mode]['KEYWORD_LABEL']).data()
-        elif isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], list):
-            this_data['label'] = dict()
-            for key in self._config['IO'][mode]['KEYWORD_LABEL']:
-                hash_key = self.long_key_to_short_key(key)
-                this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
+#
+      	# Figure out if the label is a dict or not:
+      	if isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], str):
+      	    this_data['label'] = self._dataloaders[mode].fetch_data(
+      	        self._config['IO'][mode]['KEYWORD_LABEL']).data()
+      	elif isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], list):
+      	    this_data['label'] = dict()
+      	    for key in self._config['IO'][mode]['KEYWORD_LABEL']:
+      	        hash_key = self.long_key_to_short_key(key)
+      	        this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
 
 	# code to flatten labels into one-hot-coded vector
 	# this code is specific to the data we're using right now (sorry) 
+	if onehot:	
+		dims = []
+		for key in this_data['label']:
+			dims = numpy.append(dims, len(this_data['label'][key][0]))
+		dims = [int(x) for x in dims]
+	       
+	        # dims = [3, 2, 2, 3]
 	
-	dims = []
-	for key in this_data['label']:
-		dims = numpy.append(dims, len(this_data['label'][key][0]))
-	dims = [int(x) for x in dims]
+		labels = numpy.zeros((self._config['MINIBATCH_SIZE'], 36))
 	
-	# dims = [3, 2, 2, 3]
+		for idx in range(len(labels)):
+			
+			temp = [0,0,0,0]
+			for i, key in enumerate(this_data['label']):
+				for j, x in enumerate(this_data['label'][key][idx]):
+					if x:
+						temp[i] = j
+			
+			labels[idx][numpy.ravel_multi_index(temp, dims)] = 1
 
-	one_hot = [numpy.zeros(dims), numpy.zeros(dims)]
-
-	# one_hot = 
-	# 	([[[[0., 0., 0.],
-	#          [0., 0., 0.]],
-	# 
-	#         [[0., 0., 0.],
-	#          [0., 0., 0.]]],
-	# 
-	# 
-	#        [[[0., 0., 0.],
-	#          [0., 0., 0.]],
-	# 
-	#         [[0., 0., 0.],
-	#          [0., 0., 0.]]],
-	# 
-	# 
-	#        [[[0., 0., 0.],
-	#          [0., 0., 0.]],
-	# 
-	#         [[0., 0., 0.],
-	#          [0., 0., 0.]]]])
-
-
-	for idx in range(len(one_hot)):
-		
-		temp = [0,0,0,0]
-		for i, key in enumerate(this_data['label']):
-			for j, x in enumerate(this_data['label'][key][idx]):
-				if x:
-					temp[i] = j
-
-		[i,j,n,x] = temp
-
-		one_hot[idx][i,j,n,x] = 1
-
-		one_hot[idx] = numpy.ndarray.flatten(one_hot[idx])
-
-	this_data['one_hot'] = one_hot
-
-        return this_data
+		this_data['label'] = labels
+	return this_data
 
     def fetch_minibatch_dims(self, mode):
         # Return a dictionary object with keys 'image', 'label', and others as needed
@@ -118,6 +92,12 @@ class resnet_trainer(trainercore.trainercore):
 
         # Here could be added code to flatten the dims into one long label dims
 
+	print
+	print(this_dims)
+	print
+
+	this_dims['label'] = numpy.array([self._config['MINIBATCH_SIZE'], 36])
+	
         return this_dims
 
 
