@@ -90,7 +90,7 @@ class uresnet3d(uresnetcore):
 
 
             if self._params['BALANCE_LOSS']:
-                weight = tf.squeeze(inputs['label'], axis=-1)
+                weight = tf.squeeze(inputs['weight'], axis=-1)
                 loss = tf.multiply(loss, weight)
 
             loss = tf.reduce_sum(loss)
