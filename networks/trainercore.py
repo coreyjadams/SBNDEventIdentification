@@ -179,7 +179,7 @@ class trainercore(object):
         self._iteration = self._net.global_step(self._sess)
         report_step  = self._iteration % self._config['REPORT_ITERATION'] == 0
         summary_step = 'SUMMARY_ITERATION' in self._config and (self._iteration % self._config['SUMMARY_ITERATION']) == 0
-        checkpt_step = 'SAVE_ITERATION' in self._config and (self._iteration % self._config['SAVE_ITERATION']) == 0
+        checkpt_step = 'SAVE_ITERATION' in self._config and (self._iteration % self._config['SAVE_ITERATION']) == 0 and self._iteration != 0
 
         # We keep track of time spent on data IO and GPU calculations
         time_io   = 0.0
