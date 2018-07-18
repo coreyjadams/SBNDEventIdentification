@@ -115,7 +115,6 @@ class trainercore(object):
             if mode not in ['TRAIN', 'TEST', 'ANA']:
                 raise Exception("Unknown mode {} requested, must be in ['TRAIN', 'TEST', 'ANA']".format(mode))
 
-            print mode
             self.prepare_manager(mode)
 
             if mode == 'ANA' and 'OUTPUT' in self._config['IO'][mode]:
