@@ -8,6 +8,9 @@ def convolutional_block(input_tensor,
                         name="",
                         batch_norm=True,
                         dropout=True,
+                        kernel_size=[3,3,3],
+                        strides=[1,1,1],
+                        n_filters=None,
                         reuse=False):
 
     with tf.variable_scope(name):
@@ -24,7 +27,8 @@ def convolutional_block(input_tensor,
         #
 
         x = input_tensor
-        n_filters = x.shape[-1]
+        if n_filters is None:
+            n_filters = x.shape[-1]
 
         # Convolutional layer:
         x = tf.layers.conv3d(x, n_filters,

@@ -33,6 +33,7 @@ class uresnetcore(networkcore):
 
         self._core_network_params += [
             'BALANCE_LOSS',
+            'NUM_LABELS',
         ]
 
         return

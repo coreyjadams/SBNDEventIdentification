@@ -199,7 +199,7 @@ class trainercore(object):
 
             # Reshape any other needed objects:
             for key in minibatch_data.keys():
-                if key != 'label' and key != 'one_hot':
+                if 'label' not in key:
                     minibatch_data[key] = numpy.reshape(minibatch_data[key], minibatch_dims[key])
 
             io_end = time.time()
@@ -255,7 +255,7 @@ class trainercore(object):
                 test_data['label'] = numpy.reshape(test_data['label'], test_dims['label'])
             # Reshape any other needed objects:
             for key in test_data.keys():
-                if key != 'label':
+                if 'label' not in key:
                     test_data[key] = numpy.reshape(test_data[key], test_dims[key])
 
 

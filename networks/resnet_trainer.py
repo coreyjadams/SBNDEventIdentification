@@ -9,7 +9,6 @@ import tensorflow as tf
 import resnet, resnet3d
 import trainercore
 
-onehot = True
 
 class resnet_trainer(trainercore.trainercore):
 
@@ -38,40 +37,37 @@ class resnet_trainer(trainercore.trainercore):
         this_data['image'] = self._dataloaders[mode].fetch_data(
             self._config['IO'][mode]['KEYWORD_DATA']).data()
 #
-      	# Figure out if the label is a dict or not:
-      	if isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], str):
-      	    this_data['label'] = self._dataloaders[mode].fetch_data(
-      	        self._config['IO'][mode]['KEYWORD_LABEL']).data()
-      	elif isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], list):
-      	    this_data['label'] = dict()
-      	    for key in self._config['IO'][mode]['KEYWORD_LABEL']:
-      	        hash_key = self.long_key_to_short_key(key)
-      	        this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
+        # Figure out if the label is a dict or not:
+        if isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], str):
+            this_data['label'] = self._dataloaders[mode].fetch_data(
+                self._config['IO'][mode]['KEYWORD_LABEL']).data()
+        elif isinstance(self._config['IO'][mode]['KEYWORD_LABEL'], list):
+            this_data['label'] = dict()
+            for key in self._config['IO'][mode]['KEYWORD_LABEL']:
+                hash_key = self.long_key_to_short_key(key)
+                this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
 
-	# code to flatten labels into one-hot-coded vector
-	# this code is specific to the data we're using right now (sorry) 
-	if onehot:	
-		dims = []
-		for key in this_data['label']:
-			dims = numpy.append(dims, len(this_data['label'][key][0]))
-		dims = [int(x) for x in dims]
-	       
-	        # dims = [3, 2, 2, 3]
-	
-		labels = numpy.zeros((self._config['MINIBATCH_SIZE'], 36))
-	
-		for idx in range(len(labels)):
-			
-			temp = [0,0,0,0]
-			for i, key in enumerate(this_data['label']):
-				for j, x in enumerate(this_data['label'][key][idx]):
-					if x:
-						temp[i] = j
-			
-			labels[idx][numpy.ravel_multi_index(temp, dims)] = 1
+        # code to flatten labels into one-hot-coded vector
+        if self._config['ONE_HOT']:
 
-		this_data['label'] = labels
-	return this_data
+            dims = self.fetch_minibatch_dims(mode)
+            unpacked_dims = numpy.asarray([ dims['unpacked_label'][dim] for dim in dims['unpacked_label']])
+            dim_lengths = unpacked_dims[:,-1]
+
+            onehot_label_holder = numpy.zeros(shape=dims['label'])
+
+            for batch in range(self._config['MINIBATCH_SIZE']):
+                unpacked_data = [ numpy.argmax(this_data['label'][dim][batch]) for dim in this_data['label'] ]
+
+                global_index = numpy.ravel_multi_index(unpacked_data, dim_lengths)
+
+                onehot_label_holder[batch, global_index] = 1
+
+            # Persist the original data:
+            # this_data['unpacked_label'] = this_data['label']
+            this_data['label'] = onehot_label_holder
+
+        return this_data
 
     def fetch_minibatch_dims(self, mode):
         # Return a dictionary object with keys 'image', 'label', and others as needed
@@ -92,12 +88,12 @@ class resnet_trainer(trainercore.trainercore):
 
         # Here could be added code to flatten the dims into one long label dims
 
-	print
-	print(this_dims)
-	print
+        if self._config['ONE_HOT'] and isinstance(this_dims['label'], dict):
+            this_dims['unpacked_label'] = this_dims['label']
+            dims = numpy.asarray([ this_dims['label'][dim] for dim in this_dims['label']])
+            total_len = numpy.prod(dims[:,-1])
+            this_dims['label'] = numpy.array([self._config['MINIBATCH_SIZE'], total_len])
 
-	this_dims['label'] = numpy.array([self._config['MINIBATCH_SIZE'], 36])
-	
         return this_dims
 
 
@@ -109,10 +105,3 @@ class resnet_trainer(trainercore.trainercore):
 
         return key.split('_')[1]
 
-    def unpack_labels(self, long_labels):
-        pass
-
-    def pack_labels(self, neutrino_label, proton_label, chrpion_label, ntrpion_label):
-
-        # Roll up the labels into one long label:
-        pass
