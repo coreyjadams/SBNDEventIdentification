@@ -29,6 +29,12 @@ IO:
     VERBOSITY: 3
     KEYWORD_DATA:  'main_data'
     KEYWORD_LABEL: 'main_label'
+  TEST:
+    FILE: './larcv_io_config/3d/full/lepton_seg/test_io.cfg'
+    FILLER: 'TestIO'
+    VERBOSITY: 3
+    KEYWORD_DATA:  'test_data'
+    KEYWORD_LABEL: 'test_label'
 
 # General parameters:
 LOGDIR: 'log/log_uresnet_3d/'
