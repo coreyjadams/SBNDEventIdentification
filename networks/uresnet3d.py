@@ -90,7 +90,8 @@ class uresnet3d(uresnetcore):
 
 
             if self._params['BALANCE_LOSS']:
-                loss = tf.multiply(loss, inputs['weight'])
+                weight = tf.squeeze(inputs['label'], axis=-1)
+                loss = tf.multiply(loss, weight)
 
             loss = tf.reduce_sum(loss)
 
@@ -137,7 +138,7 @@ class uresnet3d(uresnetcore):
 
         return accuracy
 
-    def _build_network(self, inputs, verbosity = 2):
+    def _build_network(self, inputs, verbosity = 0):
 
         if verbosity > 1:
             print inputs
