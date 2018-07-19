@@ -1,26 +1,30 @@
 # network parameters
-NUM_LABELS: 3 # (background, cosmic, neutrino)
-N_INITIAL_FILTERS:  5
-NETWORK_DEPTH_PRE_MERGE:  2
-NETWORK_DEPTH_POST_MERGE:  2
-RESIDUAL_BLOCKS_PER_LAYER: 2
-NPLANES: 3
-SHARE_WEIGHTS: false
+NAME: 'resnet'
+
+NETWORK:
+  N_INITIAL_FILTERS:  6
+  NETWORK_DEPTH_PRE_MERGE:  2
+  NETWORK_DEPTH_POST_MERGE:  2
+  RESIDUAL_BLOCKS_PER_LAYER: 2
+  NPLANES: 3
+  SHARE_WEIGHTS: true
 
 # training parameters:
 N_MINIBATCH: 1
-MINIBATCH_SIZE: 32
+MINIBATCH_SIZE: 2
 SAVE_ITERATION: 500
 REPORT_ITERATION: 10
-SUMMARY_ITERATION: 5
-BALANCE_LOSS:  True
-BASE_LEARNING_RATE:  0.0001
+SUMMARY_ITERATION: 1
+BASE_LEARNING_RATE:  0.001
 TRAINING: False
-ITERATIONS: 5
+ITERATIONS: 25
+ONE_HOT: False
 
-ANA_CONFIG:
-    FILE: './config_2d/ana_io.cfg'
-    OUTPUT: './config_2d/ana_out.cfg'
+
+IO:
+  ANA:
+    FILE:   'larcv_io_config/2d/full/event_id/ana_io.cfg'
+    OUTPUT: 'larcv_io_config/2d/full/event_id/ana_out.cfg'
     FILLER: 'ValIO'
     VERBOSITY: 3
     KEYWORD_DATA: 'ana_data'
@@ -31,5 +35,5 @@ ANA_CONFIG:
       - 'ana_ntrpion_label'
 
 # General parameters:
-LOGDIR: '/home/mbernstein/SBNDEventIdentification/log_resnet_523/2D'
+LOGDIR: 'snapshots/2d_run1/'
 RESTORE: True

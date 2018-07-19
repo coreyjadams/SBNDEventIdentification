@@ -280,14 +280,15 @@ class networkcore(object):
         feed_dict = self.feed_dict(inputs)
 
         ops = self._output['softmax']
-        if input_label is not None:
-            if isinstance(self._accuracy, dict):
-                for label_name in self._accuracy.keys():
-                    ops += [self._accuracy[label_name]]
-                    doc += ["acc. {0}".format(label_name)]
-            else:
-                ops += [self._accuracy]
-                doc += ["acc. "]
+
+        # if 'label' in inputs.keys():
+        #     if isinstance(self._accuracy, dict):
+        #         for label_name in self._accuracy.keys():
+        #             ops += [self._accuracy[label_name]]
+        #             doc += ["acc. {0}".format(label_name)]
+        #     else:
+        #         ops += [self._accuracy]
+        #         doc += ["acc. "]
 
         return sess.run( ops, feed_dict = feed_dict )
 

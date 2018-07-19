@@ -171,7 +171,7 @@ class trainercore(object):
             latest_checkpoint = tf.train.latest_checkpoint(self._config['LOGDIR']+"/train/checkpoints/")
             print "Restoring model from {}".format(latest_checkpoint)
             self._saver.restore(self._sess, latest_checkpoint)
-
+            print "Successfully restored."
 
     def train_step(self):
 
@@ -302,51 +302,7 @@ class trainercore(object):
 
 
     def ana_step(self):
-
-        # Receive data (this will hang if IO thread is still running =
-        # this will wait for thread to finish & receive data)
-        batch_data = self.fetch_minibatch_data('ANA')
-        batch_dims = self.fetch_minibatch_dims('ANA')
-
-        # reshape right here:
-        batch_data = numpy.reshape(batch_data['image'], batch_dims['image'])
-
-
-        # Reshape labels by dict entry, if needed, or all at once:
-        if isinstance(batch_data['label'], dict):
-            for key in batch_data['label'].keys():
-                batch_data['label'][key] = numpy.reshape(
-                    batch_data['label'][key], batch_dims['label'][key])
-        else:
-            batch_data['label'] = numpy.reshape(batch_data['label'], batch_dims['label'])
-
-
-        entries   = self._dataloaders['ANA'].fetch_entries()
-        event_ids = self._dataloaders['ANA'].fetch_event_ids()
-
-        softmax_dict = self.ana(inputs = batch_data)
-
-        softmax_dict = softmax_dict[0]
-
-        # For each entry, write the values to file:
-
-        for i_entry in range(self._config['MINIBATCH_SIZE']):
-            self._output.read_entry(entries[i_entry])
-
-
-            for label in label_dict.keys():
-                this_prediction = softmax_dict[label][i_entry]
-                meta = self._output.get_data("meta",label)
-                for j in range(len(this_prediction)):
-                    meta.store(str(j), this_prediction[j])
-
-            self._output.save_entry()
-
-
-        self._dataloaders['ANA'].next(store_entries   = (not self._config['TRAINING']),
-                                      store_event_ids = (not self._config['TRAINING']))
-
-
+        raise NotImplementedError("Must implement ana_step uniquely.")
 
     def batch_process(self):
 
@@ -362,5 +318,5 @@ class trainercore(object):
             else:
                 self.ana_step()
 
-        if 'ANA_CONFIG' in self._config and 'OUTPUT' in self._config['ANA_CONFIG']:
+        if 'ANA' in self._config['IO'] and 'OUTPUT' in self._config['IO']['ANA']:
             self._output.finalize()
