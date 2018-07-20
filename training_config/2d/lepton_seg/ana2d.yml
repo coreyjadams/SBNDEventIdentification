@@ -1,0 +1,38 @@
+# network parameters
+NAME: 'uresnet'
+
+NETWORK:
+  N_INITIAL_FILTERS:  8
+  NETWORK_DEPTH:  4
+  RESIDUAL_BLOCKS_PER_LAYER: 4
+  RESIDUAL_BLOCKS_DEEPEST_LAYER: 6
+  NPLANES: 3
+  NUM_LABELS: 3
+  BALANCE_LOSS: true
+  SHARE_WEIGHTS: true
+  BATCH_NORM: true
+
+
+# training parameters:
+N_MINIBATCH: 1
+MINIBATCH_SIZE: 1
+SAVE_ITERATION: 500
+REPORT_ITERATION: 10
+SUMMARY_ITERATION: 10
+BASE_LEARNING_RATE:  0.001
+TRAINING: False
+ITERATIONS: 5
+
+
+IO:
+  ANA:
+    FILE:   'larcv_io_config/2d/full/lepton_seg/ana_io.cfg'
+    OUTPUT: 'larcv_io_config/2d/full/lepton_seg/ana_out.cfg'
+    FILLER: 'ValIO'
+    VERBOSITY: 3
+    KEYWORD_DATA: 'ana_data'
+    KEYWORD_LABEL: 'ana_label'
+
+# General parameters:
+LOGDIR: 'log/log_uresnet_2d/'
+RESTORE: True

@@ -6,6 +6,8 @@ import numpy
 
 import tensorflow as tf
 
+from ROOT import larcv
+
 import uresnet, uresnet3d
 # import uresnet, uresnet3d
 import trainercore
@@ -46,8 +48,6 @@ class uresnet_trainer(trainercore.trainercore):
         if self._config['NETWORK']['BALANCE_LOSS']:
             this_data['weight'] = self.compute_weights(this_data['label'])
 
-        self._dataloaders[mode].next()
-
 
         return this_data
 
@@ -76,7 +76,7 @@ class uresnet_trainer(trainercore.trainercore):
 
         weights = numpy.zeros(labels.shape)
 
-        print "entering compute weights, batch_size: " + str(len(labels))
+        # print "entering compute weights, batch_size: " + str(len(labels))
 
         i = 0
         for batch in labels:
@@ -86,7 +86,7 @@ class uresnet_trainer(trainercore.trainercore):
             n_pixels = numpy.sum(counts)
             for value, count in zip(values, counts):
                 weight = 1.0*(n_pixels - count) / n_pixels
-                print "  B{i}, L{l}, weight: ".format(i=i, l=value) + str(weight)
+                # print "  B{i}, L{l}, weight: ".format(i=i, l=value) + str(weight)
                 mask = labels[i] == value
                 weights[i, mask] += weight
 
@@ -101,4 +101,74 @@ class uresnet_trainer(trainercore.trainercore):
 
 
         return weights
+
+
+    def ana_step(self):
+
+
+        minibatch_data = self.fetch_minibatch_data('ANA')
+        minibatch_dims = self.fetch_minibatch_dims('ANA')
+
+
+        # Reshape any other needed objects:
+        for key in minibatch_data.keys():
+            minibatch_data[key] = numpy.reshape(minibatch_data[key], minibatch_dims[key])
+
+
+        softmax = self.ana(minibatch_data)
+
+
+        report_step  = self._iteration % self._config['REPORT_ITERATION'] == 0
+
+        if self._output:
+
+            # if report_step:
+            #     print "Step {} - Acc all: {}, Acc non zero: {}".format(self._iteration,
+            #         acc_all, acc_nonzero)
+
+            # for entry in xrange(len(softmax)):
+            #   self._output.read_entry(entry)
+            #   data  = numpy.array(minibatch_data[entry]).reshape(softmax.shape[1:-1])
+            entries   = self._dataloaders['ANA'].fetch_entries()
+            event_ids = self._dataloaders['ANA'].fetch_event_ids()
+
+
+            for entry in xrange(self._config['MINIBATCH_SIZE']):
+                self._output.read_entry(entries[entry])
+
+                larcv_data = self._output.get_data("image2d","sbndwire")
+                larcv_lept = self._output.get_data("sparse2d","lepton")
+                larcv_nlep = self._output.get_data("sparse2d","nonlepton")
+                for projection_id in range(len(softmax)):
+
+                    data = minibatch_data['image'][entry,:,:,projection_id]
+                    nonzero_rows, nonzero_columns  = numpy.where(data > 0.1)
+                    indexes = nonzero_columns * larcv_data.at(projection_id).meta().rows() + nonzero_rows
+                    indexes = indexes.astype(dtype=numpy.uint64)
+
+                    lepton_score = softmax[projection_id][entry,:,:,1]
+                    nonlepton_score  = softmax[projection_id][entry,:,:,2]
+
+                    mapped_lepton_score = lepton_score[nonzero_rows,nonzero_columns].astype(dtype=numpy.float32)
+                    mapped_nonlepton_score = nonlepton_score[nonzero_rows, nonzero_columns].astype(dtype=numpy.float32)
+
+                    # sum_score = lepton_score + nonlepton_score
+                    # lepton_score = lepton_score / sum_score
+                    # nonlepton_score  = nonlepton_score  / sum_score
+
+                    nonlepton_vs = larcv.as_tensor2d(mapped_nonlepton_score, indexes)
+                    nonlepton_vs.id(projection_id)
+                    larcv_nlep.set(nonlepton_vs, larcv_data.at(projection_id).meta())
+                    lepton_vs   = larcv.as_tensor2d(mapped_lepton_score, indexes)
+                    lepton_vs.id(projection_id)
+                    larcv_lept.set(lepton_vs, larcv_data.at(projection_id).meta())
+
+                self._output.save_entry()
+        else:
+            print "Acc all: {}, Acc non zero: {}".format(acc_all, acc_nonzero)
+
+
+        self._dataloaders['ANA'].next(store_entries   = (not self._config['TRAINING']),
+                                      store_event_ids = (not self._config['TRAINING']))
+
 
