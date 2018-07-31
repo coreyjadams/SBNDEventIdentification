@@ -140,7 +140,7 @@ class resnet_trainer(trainercore.trainercore):
 
             for label in softmax_dict.keys():
                 this_prediction = softmax_dict[label][i_entry]
-                meta = self._output.get_data("meta",label)
+                meta = self._output.get_data("meta",self._config['NAME'] + label)
                 for j in range(len(this_prediction)):
                     meta.store(str(j), this_prediction[j])
 
