@@ -129,8 +129,8 @@ class resnet_trainer(trainercore.trainercore):
         entries   = self._dataloaders['ANA'].fetch_entries()
         event_ids = self._dataloaders['ANA'].fetch_event_ids()
 
-        softmax_dict, doc = self.ana(inputs = batch_data)
-        print softmax_dict
+        softmax_dict, acc, doc = self.ana(inputs = batch_data)
+        self._report(acc, doc)
 
         # For each entry, write the values to file:
 
