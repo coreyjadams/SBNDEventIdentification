@@ -146,8 +146,12 @@ class uresnet_trainer(trainercore.trainercore):
                     indexes = nonzero_columns * larcv_data.at(projection_id).meta().rows() + nonzero_rows
                     indexes = indexes.astype(dtype=numpy.uint64)
 
-                    lepton_score = softmax[projection_id][entry,:,:,1]
-                    nonlepton_score  = softmax[projection_id][entry,:,:,2]
+                    if '3d' in self._config['NAME']:
+                        lepton_score = softmax[projection_id][entry,:,:,:,1]
+                        nonlepton_score  = softmax[projection_id][entry,:,:,:,2]
+                    else:
+                        lepton_score = softmax[projection_id][entry,:,:,1]
+                        nonlepton_score  = softmax[projection_id][entry,:,:,2]
 
                     mapped_lepton_score = lepton_score[nonzero_rows,nonzero_columns].astype(dtype=numpy.float32)
                     mapped_nonlepton_score = nonlepton_score[nonzero_rows, nonzero_columns].astype(dtype=numpy.float32)
