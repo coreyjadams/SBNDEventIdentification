@@ -265,13 +265,11 @@ class networkcore(object):
 
         ops = [self._loss]
         doc = ['loss']
-        if isinstance(self._accuracy, dict):
-            for label_name in self._accuracy.keys():
-                ops += [self._accuracy[label_name]]
-                doc += ["acc. {0}".format(label_name)]
-        else:
-            ops += [self._accuracy]
-            doc += ["acc. "]
+
+        ops_metrics, doc_metrics = self.metrics(inputs)
+
+        ops += ops_metrics
+        doc += doc_metrics
 
         return sess.run(ops, feed_dict = feed_dict ), doc
 
@@ -280,17 +278,27 @@ class networkcore(object):
         feed_dict = self.feed_dict(inputs)
 
         ops = self._output['softmax']
+        doc = ['softmax']
 
-        # if 'label' in inputs.keys():
-        #     if isinstance(self._accuracy, dict):
-        #         for label_name in self._accuracy.keys():
-        #             ops += [self._accuracy[label_name]]
-        #             doc += ["acc. {0}".format(label_name)]
-        #     else:
-        #         ops += [self._accuracy]
-        #         doc += ["acc. "]
+        ops_metrics, doc_metrics = self.metrics(inputs)
 
-        return sess.run( ops, feed_dict = feed_dict )
+        ops += ops_metrics
+        doc += doc_metrics
+
+        return sess.run( ops, feed_dict = feed_dict ), doc
+
+    def metrics(self, inputs):
+
+        if 'label' in inputs.keys():
+            if isinstance(self._accuracy, dict):
+                for label_name in self._accuracy.keys():
+                    ops += [self._accuracy[label_name]]
+                    doc += ["acc. {0}".format(label_name)]
+            else:
+                ops += [self._accuracy]
+                doc += ["acc. "]
+
+        return ops, doc
 
     def global_step(self, sess):
         return sess.run(self._global_step)

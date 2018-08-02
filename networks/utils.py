@@ -34,7 +34,7 @@ def convolutional_block(input_tensor,
                              activation=None,
                              use_bias=False,
                              trainable=is_training,
-                             kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.1),
+                             kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=0.005),
                              name="Conv2D",
                              reuse=reuse)
 
