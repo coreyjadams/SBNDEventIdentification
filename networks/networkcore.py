@@ -289,6 +289,9 @@ class networkcore(object):
 
     def metrics(self, inputs):
 
+        ops = []
+        doc = []
+
         if 'label' in inputs.keys():
             if isinstance(self._accuracy, dict):
                 for label_name in self._accuracy.keys():
