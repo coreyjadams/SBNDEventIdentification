@@ -115,10 +115,14 @@ class uresnet_trainer(trainercore.trainercore):
             minibatch_data[key] = numpy.reshape(minibatch_data[key], minibatch_dims[key])
 
 
-        softmax = self.ana(minibatch_data)
+        softmax, metrics, doc = self.ana(minibatch_data)
+
 
 
         report_step  = self._iteration % self._config['REPORT_ITERATION'] == 0
+        if report_step:
+            self._report(metrics, doc)
+
 
         if self._output:
 

@@ -278,14 +278,11 @@ class networkcore(object):
         feed_dict = self.feed_dict(inputs)
 
         ops = self._output['softmax']
-        doc = ['softmax']
+        softmax = sess.run( ops, feed_dict = feed_dict )
 
         ops_metrics, doc_metrics = self.metrics(inputs)
 
-        ops += ops_metrics
-        doc += doc_metrics
-
-        return sess.run( ops, feed_dict = feed_dict ), doc
+        return softmax, sess.run( ops_metrics, feed_dict = feed_dict ), doc_metrics
 
     def metrics(self, inputs):
 
