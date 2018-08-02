@@ -116,27 +116,22 @@ class uresnet3d(uresnetcore):
 
         with tf.name_scope('accuracy'):
 
-            if isinstance(outputs['prediction'], dict):
-                accuracy = dict()
+            # Find the non zero labels:
+            non_zero_indices = tf.not_equal(inputs['labels'], tf.constant(0, input['labels'].dtype))
 
-                for key in outputs['prediction'].keys():
-                    correct_prediction = tf.equal(tf.argmax(inputs['label'][key], -1),
-                                                  outputs['prediction'][key])
-                    accuracy.update({
-                        key : tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-                    })
+            non_zero_logits = tf.boolean_mask(outputs['prediction'], non_zero_indices)
+            non_zero_labels = tf.boolean_mask(tf.argmax(inputs['label'], -1), non_zero_indices)
+
+            non_bkg_accuracy = tf.reduce_mean(tf.cast(tf.equal(non_zero_logits, non_zero_labels), tf.float32))
+
+            correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
+                                          outputs['prediction'])
+            accuracy_all = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            tf.summary.scalar("Accuracy", accuracy)
+            tf.summary.scalar("Accuracy_non_bkg", non_bkg_accuracy)
 
 
-                    # Add the accuracies to the summary:
-                    tf.summary.scalar("{0}_Accuracy".format(key), accuracy[key])
-
-            else:
-                correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
-                                              outputs['prediction'])
-                accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-                tf.summary.scalar("Accuracy", accuracy)
-
-        return accuracy
+        return {'total_acc' : accuracy_all, 'non_bkg_acc' : non_bkg_accuracy }
 
     def _build_network(self, inputs, verbosity = 0):
 
