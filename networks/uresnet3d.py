@@ -114,20 +114,24 @@ class uresnet3d(uresnetcore):
 
         # Compare how often the input label and the output prediction agree:
 
+
         with tf.name_scope('accuracy'):
 
+            labels = tf.squeeze(inputs['label'], axis=-1)
+
             # Find the non zero labels:
-            non_zero_indices = tf.not_equal(inputs['labels'], tf.constant(0, input['labels'].dtype))
+            non_zero_indices = tf.not_equal(labels, tf.constant(0, labels.dtype))
+
 
             non_zero_logits = tf.boolean_mask(outputs['prediction'], non_zero_indices)
-            non_zero_labels = tf.boolean_mask(tf.argmax(inputs['label'], -1), non_zero_indices)
+            non_zero_labels = tf.boolean_mask(labels, non_zero_indices)
 
             non_bkg_accuracy = tf.reduce_mean(tf.cast(tf.equal(non_zero_logits, non_zero_labels), tf.float32))
 
-            correct_prediction = tf.equal(tf.argmax(inputs['label'], -1),
+            correct_prediction = tf.equal(labels,
                                           outputs['prediction'])
             accuracy_all = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-            tf.summary.scalar("Accuracy", accuracy)
+            tf.summary.scalar("Accuracy", accuracy_all)
             tf.summary.scalar("Accuracy_non_bkg", non_bkg_accuracy)
 
 

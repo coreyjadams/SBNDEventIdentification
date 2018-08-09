@@ -316,6 +316,7 @@ class trainercore(object):
             if self._config['TRAINING']:
                 self.train_step()
             else:
+                self._iteration += 1
                 self.ana_step()
 
         if 'ANA' in self._config['IO'] and 'OUTPUT' in self._config['IO']['ANA']:
