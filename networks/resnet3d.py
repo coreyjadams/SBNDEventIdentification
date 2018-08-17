@@ -4,7 +4,7 @@ import time
 
 import tensorflow as tf
 
-from utils3d import residual_block, downsample_block
+from utils3d import residual_block, downsample_block, convolutional_block
 
 from resnetcore import resnetcore
 
@@ -37,7 +37,7 @@ class resnet3d(resnetcore):
 
 
 
-    def _build_network(self, inputs, verbosity=0):
+    def _build_network(self, inputs, verbosity=2):
 
         x = inputs['image']
 
@@ -48,23 +48,32 @@ class resnet3d(resnetcore):
         if verbosity > 1:
             print "Initial shape: " + str(x.get_shape())
 
-        x = tf.layers.conv3d(x, self._params['N_INITIAL_FILTERS'],
-                                kernel_size=[7, 7, 7],
-                                strides=[2, 2, 2],
-                                padding='same',
-                                use_bias=False,
-                                trainable=self._params['TRAINING'],
-                                name="Conv3DInitial",
-                                reuse=None)
-
-        # ReLU:
-        x = tf.nn.relu(x)
+        x = convolutional_block(x,
+                        is_training=self._params['TRAINING'],
+                        name="initial_convolution",
+                        batch_norm=True,
+                        dropout=False,
+                        kernel_size=[5,5,5],
+                        strides=[4,4,4],
+                        n_filters=self._params['N_INITIAL_FILTERS'],
+                        reuse=False)
 
         if verbosity > 1:
             print "After initial convolution: " + str(x.get_shape())
 
 
+        # x = convolutional_block(x,
+        #                 is_training=self._params['TRAINING'],
+        #                 name="initial_convolution2",
+        #                 batch_norm=True,
+        #                 dropout=False,
+        #                 kernel_size=[3,3,3],
+        #                 strides=[2,2,2],
+        #                 n_filters=self._params['N_INITIAL_FILTERS'],
+        #                 reuse=False)
 
+        if verbosity > 1:
+            print "After initial convolution: " + str(x.get_shape())
 
         if verbosity > 0:
             print "Begin downsampling {} times".format(self._params['NETWORK_DEPTH'])

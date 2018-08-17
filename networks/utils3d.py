@@ -32,8 +32,8 @@ def convolutional_block(input_tensor,
 
         # Convolutional layer:
         x = tf.layers.conv3d(x, n_filters,
-                             kernel_size=[3, 3, 3],
-                             strides=[1, 1, 1],
+                             kernel_size=kernel_size,
+                             strides=strides,
                              padding='same',
                              activation=None,
                              use_bias=False,
