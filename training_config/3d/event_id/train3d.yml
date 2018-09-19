@@ -5,7 +5,8 @@ NAME: 'resnet3d'
 NETWORK:
   #NUM_LABELS: 3
   N_INITIAL_FILTERS:  12 #order 10-20
-  NETWORK_DEPTH:  3 # can't go deeper than 7 (2^7); 4  - final resolution 8x8
+  NETWORK_DEPTH_LOWRES:  5 # can't go deeper than 7 (2^7); 4  - final resolution 8x8
+  NETWORK_DEPTH_HIGHRES: 4
   RESIDUAL_BLOCKS_PER_LAYER: 3
 
 # training parameters:
@@ -24,7 +25,8 @@ IO:
     FILE: '/home/mbernstein/SBNDEventIdentification/larcv_io_config/3d/full/event_id/train_io.cfg'
     FILLER: 'TrainIO'
     VERBOSITY: 3
-    KEYWORD_DATA:  'main_data'
+    KEYWORD_DATA:    'main_data'
+    KEYWORD_HIGHRES: 'main_highres_data'
     KEYWORD_LABEL:
       - 'main_neutrino_label'
       - 'main_proton_label'
@@ -35,7 +37,8 @@ IO:
     FILE: '/home/mbernstein/SBNDEventIdentification/larcv_io_config/3d/full/event_id/test_io.cfg'
     FILLER: 'TestIO'
     VERBOSITY: 3
-    KEYWORD_DATA:  'test_data'
+    KEYWORD_DATA:    'test_data'
+    KEYWORD_HIGHRES: 'test_highres_data'
     KEYWORD_LABEL:
       - 'test_neutrino_label'
       - 'test_proton_label'

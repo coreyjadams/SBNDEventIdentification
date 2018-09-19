@@ -47,6 +47,10 @@ class resnet_trainer(trainercore.trainercore):
                 hash_key = self.long_key_to_short_key(key)
                 this_data['label'][hash_key] = self._dataloaders[mode].fetch_data(key).data()
 
+        if 'KEYWORD_HIGHRES' in self._config['IO'][mode]:
+            this_data['highres_image'] = self._dataloaders[mode].fetch_data(
+                self._config['IO'][mode]['KEYWORD_HIGHRES']).data()
+
         # code to flatten labels into one-hot-coded vector
         if self._config['ONE_HOT']:
 
